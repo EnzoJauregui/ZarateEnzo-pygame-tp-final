@@ -1,0 +1,20 @@
+import json
+
+ANCHO_VENTANA = 900
+ALTO_VENTANA = 800
+GROUND_LEVEL = 650
+RECTIFY = 1.2
+FPS = 60
+DEBUG = True
+CONGIG_FILE_PATH = "Pygame\models\config.json"
+
+def open_config() -> dict:
+    """
+    Abre el archivo de configuración en formato JSON y carga su contenido en un diccionario.
+
+    DEVUELVE:
+    dict: Diccionario con la configuración cargada desde el archivo.
+    """
+    with open(CONGIG_FILE_PATH, 'r', encoding='utf-8') as config:
+        return json.load(config)
+    
