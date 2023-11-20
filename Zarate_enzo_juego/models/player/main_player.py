@@ -108,7 +108,7 @@ class Jugador:
     def enemy_colition(self, enemies:list[Enemigo]):
         for enemy in enemies:
             if self.__rect.colliderect(enemy.get_rect):
-                self.__lives = 0
+                self.__lives = 8
 
     def plataform_colition(self, plataforms:list[Plataform]):
         for plataform in plataforms:
