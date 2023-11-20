@@ -7,8 +7,6 @@ RECTIFY = 1.2
 FPS = 60
 DEBUG = True
 CONGIG_FILE_PATH = "Pygame\models\config.json"
-PLATAFORM_LIMIT = 300
-HEIGHT_RECT = 3
 
 def open_config() -> dict:
     """

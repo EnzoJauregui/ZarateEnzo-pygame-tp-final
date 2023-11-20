@@ -1,22 +1,21 @@
-import pygame as pg
 from models.auxiliar import SurfaceManager as sf
+import pygame as pg
 from models.constantes import ANCHO_VENTANA, DEBUG, GROUND_LEVEL, RECTIFY
-from models.platafroma import Plataform
-
 
 
 class Jugador:
-    def __init__(self, coord_x, coord_y,w,h:tuple, frame_rate = 100, speed_walk = 3, speed_run = 6):
-        self.__iddle_r = sf.get_surface_from_spritesheet(r'recursos\player\nick\iddle\0.png', 1, 1,(w,h), flip=True)
-        self.__iddle_l = sf.get_surface_from_spritesheet(r'recursos\player\nick\iddle\0.png', 1, 1,(w,h))
-        self.__walk_r = sf.get_surface_from_spritesheet(r'recursos\player\nick\walk\0.png', 3, 1,(w,h), flip=True)
-        self.__walk_l = sf.get_surface_from_spritesheet(r'recursos\player\nick\walk\0.png', 3, 1,(w,h))
-        self.__run_r = sf.get_surface_from_spritesheet(r'recursos\player\nick\run\0.png', 3, 1,(w,h), flip=True)
-        self.__run_l = sf.get_surface_from_spritesheet(r'recursos\player\nick\run\0.png', 3, 1,(w,h))
-        self.atack_r = sf.get_surface_from_spritesheet(r'recursos\player\nick\atak\0.png', 3, 1,(w,h), flip=True)
-        self.atack_l = sf.get_surface_from_spritesheet(r'recursos\player\nick\atak\0.png', 3, 1,(w,h))
-        self.__jump_r = sf.get_surface_from_spritesheet(r'recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY), flip=True)
-        self.__jump_l = sf.get_surface_from_spritesheet(r'recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY))
+
+    def __init__(self, coord_x, coord_y,w,h:tuple, frame_rate = 50, speed_walk = 6, speed_run = 12):
+        self.__iddle_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h), flip=True)
+        self.__iddle_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h))
+        self.__walk_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\walk\0.png', 3, 1,(w,h), flip=True)
+        self.__walk_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\walk\0.png', 3, 1,(w,h))
+        self.__run_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\run\0.png', 3, 1,(w,h), flip=True)
+        self.__run_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\run\0.png', 3, 1,(w,h))
+        self.atack_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 3, 1,(w,h), flip=True)
+        self.atack_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 3, 1,(w,h))
+        self.__jump_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY), flip=True)
+        self.__jump_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY))
         
         self.__move_x = coord_x
         self.__move_y = coord_y
@@ -28,7 +27,6 @@ class Jugador:
         self.__jump = 15
         self.__is_jumping = False
         self.__star_jump = False
-        self.falling = False
      
         self.__frame_rate = frame_rate
         self.update_time = pg.time.get_ticks()
@@ -36,8 +34,7 @@ class Jugador:
         self.__actual_animation = self.__iddle_r
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
-        self._plataform_colition = False
-        self._grund_collition_rect = pg.Rect(self.__rect.x, self.__rect.y+self.__rect.h, self.__rect.w, 2)
+        
 
     def __set_x_animations_preset(self, move_x: int, animation_list: list[pg.surface.Surface], look_r: bool):
         """
@@ -70,6 +67,7 @@ class Jugador:
                 animation = self.__walk_l if boolean else self.__jump_l
                 self.__set_x_animations_preset(-self.__speed_walk, animation, look_r=look_right)
        
+    
     def run(self, direction: str = 'Right'):
         """
         Inicia el movimiento de correr en la dirección especificada Y actualiza la animacion.
@@ -84,6 +82,7 @@ class Jugador:
             case 'Left':
                 look_right = False
                 self.__set_x_animations_preset(-self.__speed_run, self.__run_l, look_r=look_right)
+        self.__initial_frame = 0
     
     def stay(self):
         """
@@ -100,29 +99,12 @@ class Jugador:
         if not self.__is_jumping: 
             self.__gravity = self.__jump
             self.__is_jumping = True
-            self._plataform_colition = False
-
-    def plataform_colition(self, plataforms:list[Plataform]):
-        for plataform in plataforms:
-            if self.__rect.colliderect(plataform.get_rect):
-                if self.__rect.bottom >= plataform.get_rect.top:
-                    self.__is_jumping = False
-                    self.__rect.bottom = plataform.get_rect.top
-                    self._plataform_colition = True
-                    self.__gravity = 0
-                    self.falling = False
-                elif self.__rect.top >= plataform.get_rect.bottom:
-                    print("hola")
-                    self.falling = True
-            else:
-                self._plataform_colition = False
-            
 
     def applty_gravity(self):
         """
         Aplica la gravedad al movimiento en 'y' del jugador.
         """
-        if (self.__is_jumping or self.__move_y < GROUND_LEVEL) and not self._plataform_colition:
+        if self.__is_jumping or self.__move_y < GROUND_LEVEL:
             
             self.__move_y -= self.__gravity
             self.__gravity-=1
@@ -133,12 +115,6 @@ class Jugador:
                 self.__star_jump = True
                 self.__is_jumping = False
                 self.__gravity = 0
-                self.falling = False
-
-        if self.falling:
-            self.__move_y += 5
-            self.__gravity = 0
-            self.__jump = 0
        
     def __set_borders_limits(self):
         """
@@ -150,33 +126,19 @@ class Jugador:
         elif self.__rect.left <= 0:
             self.__move_x = 0
 
-    def do_movement(self, plataforms: list[Plataform]):
+    def do_movement(self):
         """
         Maneja el movimiento del jugador.
         """
-        self.add_x(self.__move_x)
-        self.add_y(self.__move_y)
+        self.__rect.x = self.__move_x
+        self.__rect.y = self.__move_y
         self.__set_borders_limits()
         self.applty_gravity()
-        self.plataform_colition(plataforms)
-        
-        print(self.falling)
-
-    def add_x(self, move_x):
-        self.__rect.x = move_x
-        self._grund_collition_rect.x = move_x
-
-    def add_y(self, move_y):
-        self.__rect.y = move_y
-        self._grund_collition_rect.y = move_y
-
+            
     def do_animation(self):
         """
         Controla las acciones del jugador según las teclas presionadas.
         """
-        if self.__initial_frame >= len(self.__actual_animation) - 1:
-            self.__initial_frame = 0
-
         if not self.__star_jump:
             if self.__is_looking_right:
                 self.__actual_img_animation = self.__jump_r[0]
@@ -188,6 +150,9 @@ class Jugador:
             if pg.time.get_ticks() - self.update_time >= self.__frame_rate:
                 self.__initial_frame += 1
                 self.update_time = pg.time.get_ticks()
+
+            if self.__initial_frame >= len(self.__actual_animation) - 1:
+                self.__initial_frame = 0
               
     def control_keys(self):
         """
@@ -218,11 +183,11 @@ class Jugador:
         if lista_teclas_presionadas[pg.K_UP]:
             self.jump()
 
-    def update(self, plataformas: list[Plataform]):
+    def update(self):
         """
         Actualiza el estado del jugador (movimiento y animación).
         """
-        self.do_movement(plataformas)
+        self.do_movement()
         self.do_animation()
     
     def draw(self, screen: pg.surface.Surface):
@@ -235,10 +200,8 @@ class Jugador:
         if DEBUG:
             pg.draw.rect(screen, 'red', self.__rect)
             rectangle_height = 2
-            
-            top_rect = pg.Rect(self.__rect.left, self.__rect.top, self.__rect.width, rectangle_height)
-            pg.draw.rect(screen, "Black", self._grund_collition_rect)
-            pg.draw.rect(screen, "Black", top_rect)
+            bottom_rect = pg.Rect(self.__rect.left, self.__rect.bottom, self.__rect.width, rectangle_height)
+            pg.draw.rect(screen, "Black", bottom_rect)
         
         screen.blit(self.__actual_img_animation, self.__rect)
         

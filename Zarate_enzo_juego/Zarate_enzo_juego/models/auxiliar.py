@@ -29,6 +29,7 @@ class SurfaceManager:
 
                 frame_surface = surface_img.subsurface(x_axis, y_axis, frame_width, frame_height)
                 frame_surface = pg.transform.scale(frame_surface, tamanio)
+
                 if flip:
                     frame_surface = pg.transform.flip(frame_surface, True, False)
                     frame_surface = pg.transform.scale(frame_surface, tamanio)

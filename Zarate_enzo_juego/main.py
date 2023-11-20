@@ -1,33 +1,60 @@
 import pygame as pg
 from models.constantes import ALTO_VENTANA, ANCHO_VENTANA, FPS
 from models.player.main_player import Jugador
+from models.player.main_enemy import Enemigo
+from models.platafroma import Plataform
 
-screen = pg.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
+# Inicialización de Pygame
 pg.init()
-clock = pg.time.Clock()
 
-back_img = pg.image.load(r'Zarate_enzo_juego\recursos\fondo.jpg')
+# Creación de la pantalla
+screen = pg.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
+
+# Creación del fondo
+back_img = pg.image.load(r'recursos\fondo.jpg')
 back_img = pg.transform.scale(back_img, (ANCHO_VENTANA, ALTO_VENTANA))
 
+# Creación del jugador y enemigo
+nick = Jugador(0, 0, 30, 30)
+enemy = Enemigo(50, 0, 40, 40)
+
+# Creación de plataformas
+lista_plataformas = []
+lista_plataformas.append(Plataform(350, 580, 50, 30, 3))
+
+# Reloj para controlar el FPS
+clock = pg.time.Clock()
+
+# Bucle principal
 juego_ejecutandose = True
-
-nick = Jugador(0, 0,30,30, frame_rate=100, speed_walk=3, speed_run=6)
-
-
 while juego_ejecutandose:
-    #print(delta_ms)
     lista_eventos = pg.event.get()
     for event in lista_eventos:
         if event.type == pg.QUIT:
             print('Estoy CERRANDO el JUEGO')
             juego_ejecutandose = False
     
-    nick.control_keys()        
+    # Actualizar jugador y enemigo
+    nick.control_keys()
+    nick.update(lista_plataformas)
 
+    enemy.update()
+
+    # Dibujar fondo y plataformas
     screen.blit(back_img, back_img.get_rect())
-    delta_ms = clock.tick(FPS)
-    nick.update()
+    for plataforma in lista_plataformas:
+        
+        plataforma.draw(screen)
+
+    # Dibujar jugador y enemigo
     nick.draw(screen)
+    enemy.draw(screen)
+
+    # Actualizar pantalla
     pg.display.update()
 
+    # Controlar el FPS
+    delta_ms = clock.tick(FPS)
+
+# Cierre de Pygame
 pg.quit()
