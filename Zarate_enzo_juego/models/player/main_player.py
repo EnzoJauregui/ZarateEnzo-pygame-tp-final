@@ -8,16 +8,16 @@ from models.player.main_enemy import Enemigo
 
 class Jugador:
     def __init__(self, coord_x, coord_y,w,h:tuple, frame_rate = 60, speed_walk = 3, speed_run = 6,lives=5):
-        self.__iddle_r = sf.get_surface_from_spritesheet(r'recursos\player\nick\iddle\0.png', 1, 1,(w,h), flip=True)
-        self.__iddle_l = sf.get_surface_from_spritesheet(r'recursos\player\nick\iddle\0.png', 1, 1,(w,h))
-        self.__walk_r = sf.get_surface_from_spritesheet(r'recursos\player\nick\walk\0.png', 3, 1,(w,h), flip=True)
-        self.__walk_l = sf.get_surface_from_spritesheet(r'recursos\player\nick\walk\0.png', 3, 1,(w,h))
-        self.__run_r = sf.get_surface_from_spritesheet(r'recursos\player\nick\run\0.png', 3, 1,(w,h), flip=True)
-        self.__run_l = sf.get_surface_from_spritesheet(r'recursos\player\nick\run\0.png', 3, 1,(w,h))
-        self.atack_r = sf.get_surface_from_spritesheet(r'recursos\player\nick\atak\0.png', 3, 1,(w,h), flip=True)
-        self.atack_l = sf.get_surface_from_spritesheet(r'recursos\player\nick\atak\0.png', 3, 1,(w,h))
-        self.__jump_r = sf.get_surface_from_spritesheet(r'recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY), flip=True)
-        self.__jump_l = sf.get_surface_from_spritesheet(r'recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY))
+        self.__iddle_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h), flip=True)
+        self.__iddle_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h))
+        self.__walk_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\walk\0.png', 3, 1,(w,h), flip=True)
+        self.__walk_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\walk\0.png', 3, 1,(w,h))
+        self.__run_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\run\0.png', 3, 1,(w,h), flip=True)
+        self.__run_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\run\0.png', 3, 1,(w,h))
+        self.atack_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 3, 1,(w,h), flip=True)
+        self.atack_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 3, 1,(w,h))
+        self.__jump_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY), flip=True)
+        self.__jump_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY))
         
         self.__move_x = coord_x
         self.__move_y = coord_y
@@ -108,7 +108,7 @@ class Jugador:
     def enemy_colition(self, enemies:list[Enemigo]):
         for enemy in enemies:
             if self.__rect.colliderect(enemy.get_rect):
-                self.__lives
+                self.__lives = 0
 
     def plataform_colition(self, plataforms:list[Plataform]):
         for plataform in plataforms:

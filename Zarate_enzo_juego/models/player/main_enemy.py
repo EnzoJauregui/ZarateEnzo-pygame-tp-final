@@ -6,16 +6,16 @@ from models.auxiliar import SurfaceManager as sf
 class Enemigo():
     def __init__(self, coord_x, coord_y,w,h, speed_walk ,speed_atak,jump_time,damage, frame_rate=100):
         
-        self.__up_r = sf.get_surface_from_spritesheet(r'recursos\enemy\up.png', 1, 1,(w,h))
-        self.__up_l = sf.get_surface_from_spritesheet(r'recursos\enemy\up.png', 1, 1,(w,h), flip=True)
-        self.__walk_r = sf.get_surface_from_spritesheet(r'recursos\enemy\walk.png', 3, 1,(w,h))
-        self.__walk_l = sf.get_surface_from_spritesheet(r'recursos\enemy\walk.png', 3, 1,(w,h), flip=True)
-        self.__die_r = sf.get_surface_from_spritesheet(r'recursos\enemy\die.png', 9, 1,(w,h))
-        self.__die_l = sf.get_surface_from_spritesheet(r'recursos\enemy\die.png', 9, 1,(w,h), flip=True)
-        self.__attack_r = sf.get_surface_from_spritesheet(r'recursos\enemy\atak.png', 3, 1,(w,h))
-        self.__attack_l = sf.get_surface_from_spritesheet(r'recursos\enemy\atak.png', 3, 1,(w,h), flip=True)
-        self.__fall_r = sf.get_surface_from_spritesheet(r'recursos\enemy\fall.png', 1, 1,(w,h))
-        self.__fall_l = sf.get_surface_from_spritesheet(r'recursos\enemy\fall.png', 1, 1,(w,h), flip=True)
+        self.__up_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\up.png', 1, 1,(w,h))
+        self.__up_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\up.png', 1, 1,(w,h), flip=True)
+        self.__walk_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\walk.png', 3, 1,(w,h))
+        self.__walk_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\walk.png', 3, 1,(w,h), flip=True)
+        self.__die_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\die.png', 9, 1,(w,h))
+        self.__die_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\die.png', 9, 1,(w,h), flip=True)
+        self.__attack_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\atak.png', 3, 1,(w,h))
+        self.__attack_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\atak.png', 3, 1,(w,h), flip=True)
+        self.__fall_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\fall.png', 1, 1,(w,h))
+        self.__fall_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\fall.png', 1, 1,(w,h), flip=True)
         self.__jump_time = jump_time
         self.__move_x = coord_x
         self.__move_y = coord_y

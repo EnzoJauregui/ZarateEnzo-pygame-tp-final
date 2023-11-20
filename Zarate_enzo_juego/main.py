@@ -11,7 +11,7 @@ pg.init()
 screen = pg.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
 
 # Creación del fondo
-back_img = pg.image.load(r'recursos\fondo.jpg')
+back_img = pg.image.load(r'Zarate_enzo_juego\recursos\fondo.jpg')
 back_img = pg.transform.scale(back_img, (ANCHO_VENTANA, ALTO_VENTANA))
 
 # Creación del jugador y enemigo
@@ -24,9 +24,9 @@ lista_plataformas.append(Plataform(450, 500, 100, 30, 5))
 lista_plataformas.append(Plataform(250, 380, 100, 30, 3))
 lista_plataformas.append(Plataform(650, 500, 100, 30, 5))
 lista_enemigos = []
-lista_enemigos.append(Enemigo(100, 0, 40, 40, 2,4, 4))
-lista_enemigos.append(Enemigo(350, 0, 40, 40,2, 3, 4))
-lista_enemigos.append(Enemigo(500, 0, 40, 40,2,1, 6))
+lista_enemigos.append(Enemigo(100, 0, 40, 40, 2,4, 4, 2))
+lista_enemigos.append(Enemigo(350, 0, 40, 40,2, 3, 4,2))
+lista_enemigos.append(Enemigo(500, 0, 40, 40,2,1, 6,2))
 
 
 # Reloj para controlar el FPS
