@@ -1,8 +1,9 @@
 import pygame as pg
 from models.auxiliar import SurfaceManager as sf
-from models.constantes import ANCHO_VENTANA, DEBUG, GROUND_LEVEL, RECTIFY,LIFE_POINTS
+from models.constantes import ANCHO_VENTANA, DEBUG, GROUND_LEVEL, RECTIFY, LIFE_POINTS, HEIGHT_RECT
 from models.platafroma import Plataform
 from models.player.main_enemy import Enemigo
+from models.tramps import Tramp
 
 
 
@@ -45,6 +46,38 @@ class Jugador:
         self._grund_collition_rect = pg.Rect(self.__rect.x, self.__rect.y+self.__rect.h-10, self.__rect.w, 2)
         self.__life_points = LIFE_POINTS
         self.counter = 1000
+    
+    @property
+    def get_rect(self):
+        """
+        Devuelve el valor del atributo privado 'self.__rect'
+        
+        DEVUELVE:
+        self.__rect (int): valor del dicho atributo.
+        """
+        return self.__rect
+    
+    @property
+    def get_life_points(self):
+        """
+        Devuelve el valor del atributo privado 'self.__life_points'
+        
+        DEVUELVE:
+        self.__life_points (int): valor del dicho atributo.
+        """
+        return self.__life_points
+
+    def reduce_life_points(self, damage: int):
+        """
+        Reduce los puntos de vida.
+
+        RECIBE:
+        damage (int): valor que se descontaran a los puntos de vida
+        """
+        self.__life_points -= damage
+    
+    def move_back(self,amount):
+        self.__move_x - amount
 
     def __set_x_animations_preset(self, move_x: int, animation_list: list[pg.surface.Surface], look_r: bool):
         """
@@ -109,13 +142,12 @@ class Jugador:
             self.__is_jumping = True
             self._plataform_colition = False
     
-    def enemy_colition(self, enemies: list[Enemigo]):
+    def collition_enemy(self, enemies: list[Enemigo]):
         for enemy in enemies:
             if self.__rect.colliderect(enemy.get_rect):
                 print("¡Colisión con enemigo!")
-                
                 # Reducir puntos de vida
-                self.__life_points -= enemy.get_damage
+                self.reduce_life_points(enemy.get_damage)
                 print("Puntos de vida restantes:", self.__life_points)
 
                 # Empujar al jugador hacia atrás al recibir daño
@@ -123,9 +155,18 @@ class Jugador:
                 self.__actual_animation = self.__die
                 self.__is_death = True
                 self.counter -= 1
+                break
+    
+    def collition_tramp(self, trampas: list[Tramp]):
+        for trampa in trampas:
+            if self.get_rect.colliderect(trampa.get_rect):
+                print("Colisión con la trampa. Aplicando daño.")
+                self.reduce_life_points(trampa.get_damage)
+                self.move_back(trampa.get_empuje)
+                print(self.get_life_points)
+                break
 
-
-    def plataform_colition(self, plataforms:list[Plataform]):
+    def collition_plataform(self, plataforms:list[Plataform]):
         for plataform in plataforms:
             if self.__rect.colliderect(plataform.get_rect_ground_colition):
                 if self.__rect.bottom >= plataform.get_rect_ground_colition.top:
@@ -191,8 +232,9 @@ class Jugador:
         self.__rect.y =+ self.__move_y
         self.__set_borders_limits()
         self.applty_gravity()
-        self.plataform_colition(plataforms)
-        self.enemy_colition(enemies)
+        self.collition_plataform(plataforms)
+        self.collition_enemy(enemies)
+        self.collition_tramp
        
     def do_animation(self):
         """
@@ -219,6 +261,7 @@ class Jugador:
         if lista_teclas_presionadas[pg.K_RIGHT]:
             if lista_teclas_presionadas[pg.K_LSHIFT]:
                 self.run('Right')
+
             elif lista_teclas_presionadas[pg.K_UP]:
                 self.jump()
                 self.walk(False)
@@ -228,6 +271,7 @@ class Jugador:
         elif lista_teclas_presionadas[pg.K_LEFT]:
             if lista_teclas_presionadas[pg.K_LSHIFT]:
                 self.run('Left')
+
             elif lista_teclas_presionadas[pg.K_UP]:
                 self.jump()
                 self.walk(False, 'Left')
@@ -255,11 +299,10 @@ class Jugador:
         """
         if DEBUG:
             pg.draw.rect(screen, 'red', self.__rect)
-            rectangle_height = 2
-            bottom_rect  = pg.Rect(self.__rect.left, self.__rect.bottom, self.__rect.width, rectangle_height)
-            top_rect = pg.Rect(self.__rect.left, self.__rect.top, self.__rect.width, rectangle_height)
-            pg.draw.rect(screen, "Black", bottom_rect)
-            pg.draw.rect(screen, "Black", top_rect)
+            rect_bottom  = pg.Rect(self.__rect.left, self.__rect.bottom, self.__rect.width, HEIGHT_RECT)
+            rect_top = pg.Rect(self.__rect.left, self.__rect.top, self.__rect.width, HEIGHT_RECT)
+            pg.draw.rect(screen, "Black", rect_bottom)
+            pg.draw.rect(screen, "Black", rect_top)
         
         screen.blit(self.__actual_img_animation, self.__rect)
         

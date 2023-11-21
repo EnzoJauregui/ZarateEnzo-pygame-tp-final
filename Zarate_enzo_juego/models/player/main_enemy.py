@@ -26,7 +26,8 @@ class Enemigo():
         self.__gravity = -1
         self.__is_on_ground = False
         self.__damage = damage
-        
+
+        self.__collite_top = False        
         self.__frame_rate = frame_rate
         self.update_time = pg.time.get_ticks()
 
@@ -36,13 +37,24 @@ class Enemigo():
         self.__rect = self.__actual_img_animation.get_rect()
         self.__is_patrolling_right = False
         
-    
     @property
-    def get_rect(self):
+    def get_rect(self) -> int:
+        """
+        Devuelve el valor del atributo privado 'self.__rect'
+        
+        DEVUELVE:
+        self.__rect (int): valor del dicho atributo.
+        """
         return self.__rect
     
     @property
-    def get_damage(self):
+    def get_damage(self) -> int:
+        """
+        Devuelve el valor del atributo privado 'self.__damage'
+        
+        DEVUELVE:
+        self.__damage (int): valor del dicho atributo.
+        """
         return self.__damage
     
     def set_x_animations(self, move_x: int, animation: list, look_r:bool):
@@ -73,6 +85,9 @@ class Enemigo():
                     self.__gravity = 0
             else:
                 self.__plataform_colition = False
+    def death(self):
+        if self.__collite_top:
+            pass
 
     def applty_gravity(self):
         if (self.__move_y < GROUND_LEVEL) and not self.__plataform_colition:

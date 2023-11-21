@@ -3,6 +3,7 @@ from models.constantes import ALTO_VENTANA, ANCHO_VENTANA, FPS
 from models.player.main_player import Jugador
 from models.player.main_enemy import Enemigo
 from models.platafroma import Plataform
+from models.tramps import Tramp
 
 # Inicialización de Pygame
 pg.init()
@@ -23,10 +24,14 @@ lista_plataformas.append(Plataform(350, 580, 100, 30, 3))
 lista_plataformas.append(Plataform(450, 500, 100, 30, 5))
 lista_plataformas.append(Plataform(250, 380, 100, 30, 3))
 lista_plataformas.append(Plataform(650, 500, 100, 30, 5))
+
 lista_enemigos = []
 lista_enemigos.append(Enemigo(100, 0, 40, 40, 2,4, 4, 2))
 lista_enemigos.append(Enemigo(350, 0, 40, 40,2, 3, 4,2))
 lista_enemigos.append(Enemigo(500, 0, 40, 40,2,1, 6,2))
+
+trampa = Tramp(200, 400, 40, 40, 20)
+lista_trampas = [trampa]
 
 
 # Reloj para controlar el FPS
@@ -50,7 +55,11 @@ while juego_ejecutandose:
 
     for enemigo in lista_enemigos:
         enemigo.update()
-        enemigo.draw(screen)   
+        enemigo.draw(screen) 
+
+    for trampa in lista_trampas:
+        trampa.update()
+        trampa.draw(screen)       
 
     nick.control_keys()
     nick.update(lista_plataformas, lista_enemigos)
