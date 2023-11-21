@@ -46,7 +46,6 @@ while juego_ejecutandose:
             print('Estoy CERRANDO el JUEGO')
             juego_ejecutandose = False 
 
-    
     # Dibujar fondo y plataformas
     screen.blit(back_img, back_img.get_rect())
     
