@@ -1,13 +1,13 @@
 import pygame as pg
 from models.auxiliar import SurfaceManager as sf
-from models.constantes import ANCHO_VENTANA, DEBUG, GROUND_LEVEL, RECTIFY
+from models.constantes import ANCHO_VENTANA, DEBUG, GROUND_LEVEL, RECTIFY,LIFE_POINTS
 from models.platafroma import Plataform
 from models.player.main_enemy import Enemigo
 
 
 
 class Jugador:
-    def __init__(self, coord_x, coord_y,w,h:tuple, frame_rate = 60, speed_walk = 3, speed_run = 6,lives=5):
+    def __init__(self, coord_x, coord_y,w,h:tuple, frame_rate = 60, speed_walk = 3, speed_run = 6):
         self.__iddle_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h), flip=True)
         self.__iddle_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h))
         self.__walk_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\walk\0.png', 3, 1,(w,h), flip=True)
@@ -18,7 +18,8 @@ class Jugador:
         self.atack_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 3, 1,(w,h))
         self.__jump_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY), flip=True)
         self.__jump_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY))
-        
+        self.__die = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\die\0.png', 11, 1,(w,h)) 
+
         self.__move_x = coord_x
         self.__move_y = coord_y
         self.__speed_walk = speed_walk
@@ -31,6 +32,8 @@ class Jugador:
         self.__is_jumping = False
         self.__star_jump = False
         self.falling = False
+        self.__is_death = False
+        self.empuje = 50
      
         self.__frame_rate = frame_rate
         self.update_time = pg.time.get_ticks()
@@ -40,7 +43,8 @@ class Jugador:
         self.__rect = self.__actual_img_animation.get_rect()
         self._plataform_colition = False
         self._grund_collition_rect = pg.Rect(self.__rect.x, self.__rect.y+self.__rect.h-10, self.__rect.w, 2)
-        self.__lives = lives
+        self.__life_points = LIFE_POINTS
+        self.counter = 1000
 
     def __set_x_animations_preset(self, move_x: int, animation_list: list[pg.surface.Surface], look_r: bool):
         """
@@ -105,10 +109,21 @@ class Jugador:
             self.__is_jumping = True
             self._plataform_colition = False
     
-    def enemy_colition(self, enemies:list[Enemigo]):
+    def enemy_colition(self, enemies: list[Enemigo]):
         for enemy in enemies:
             if self.__rect.colliderect(enemy.get_rect):
-                self.__lives = 8
+                print("¡Colisión con enemigo!")
+                
+                # Reducir puntos de vida
+                self.__life_points -= enemy.get_damage
+                print("Puntos de vida restantes:", self.__life_points)
+
+                # Empujar al jugador hacia atrás al recibir daño
+                self.__move_x += -self.empuje if self.__is_looking_right else self.empuje
+                self.__actual_animation = self.__die
+                self.__is_death = True
+                self.counter -= 1
+
 
     def plataform_colition(self, plataforms:list[Plataform]):
         for plataform in plataforms:
@@ -166,17 +181,19 @@ class Jugador:
 
         elif self.__rect.left <= 0:
             self.__move_x = 0
+                
 
-    def do_movement(self, plataforms: list[Plataform]):
+    def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo]):
         """
         Maneja el movimiento del jugador.
         """
-        self.__rect.x = self.__move_x
-        self.__rect.y = self.__move_y
+        self.__rect.x =+ self.__move_x
+        self.__rect.y =+ self.__move_y
         self.__set_borders_limits()
         self.applty_gravity()
         self.plataform_colition(plataforms)
-
+        self.enemy_colition(enemies)
+       
     def do_animation(self):
         """
         Controla las acciones del jugador según las teclas presionadas.
@@ -185,17 +202,14 @@ class Jugador:
             self.__initial_frame = 0
 
         if not self.__star_jump:
-            if self.__is_looking_right:
-                self.__actual_img_animation = self.__jump_r[0]
-            else:
-                self.__actual_img_animation = self.__jump_l[0]
+            self.__actual_img_animation = self.__jump_r[0] if self.__is_looking_right else self.__jump_l[0]
         else:
             self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
             
-            if pg.time.get_ticks() - self.update_time >= self.__frame_rate:
-                self.__initial_frame += 1
-                self.update_time = pg.time.get_ticks()
-              
+        if pg.time.get_ticks() - self.update_time >= self.__frame_rate:
+            self.__initial_frame += 1
+            self.update_time = pg.time.get_ticks()
+
     def control_keys(self):
         """
         Controla las acciones del jugador según las teclas presionadas.
@@ -225,11 +239,11 @@ class Jugador:
         if lista_teclas_presionadas[pg.K_UP]:
             self.jump()
 
-    def update(self, plataformas: list[Plataform]):
+    def update(self, plataformas: list[Plataform], enemies: list[Enemigo]):
         """
         Actualiza el estado del jugador (movimiento y animación).
         """
-        self.do_movement(plataformas)
+        self.do_movement(plataformas, enemies)
         self.do_animation()
     
     def draw(self, screen: pg.surface.Surface):

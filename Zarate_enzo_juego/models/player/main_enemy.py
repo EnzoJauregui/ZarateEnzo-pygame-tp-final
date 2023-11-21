@@ -35,10 +35,15 @@ class Enemigo():
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
         self.__is_patrolling_right = False
+        
     
     @property
     def get_rect(self):
         return self.__rect
+    
+    @property
+    def get_damage(self):
+        return self.__damage
     
     def set_x_animations(self, move_x: int, animation: list, look_r:bool):
         self.__move_x += move_x

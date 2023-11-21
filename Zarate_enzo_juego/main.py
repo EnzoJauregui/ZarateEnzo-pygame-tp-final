@@ -53,7 +53,7 @@ while juego_ejecutandose:
         enemigo.draw(screen)   
 
     nick.control_keys()
-    nick.update(lista_plataformas)
+    nick.update(lista_plataformas, lista_enemigos)
     nick.draw(screen)
     # Actualizar pantalla
     pg.display.update()

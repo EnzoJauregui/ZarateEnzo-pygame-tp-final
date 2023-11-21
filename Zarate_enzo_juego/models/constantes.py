@@ -10,6 +10,7 @@ DEBUG = True
 CONGIG_FILE_PATH = "Pygame\models\config.json"
 PLATAFORM_LIMIT = 300
 HEIGHT_RECT = 3
+LIFE_POINTS = 100
 
 def open_config() -> dict:
     """
