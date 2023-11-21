@@ -1,9 +1,9 @@
 import pygame as pg
 from models.auxiliar import SurfaceManager as sf
-from models.constantes import ANCHO_VENTANA
+from models.constantes import ANCHO_VENTANA, DEBUG
 
 class Tramp:
-    def __init__(self, coord_x, coord_y, w, h,empuje, speed=5, damage=10):
+    def __init__(self, coord_x, coord_y, w, h,empuje, speed=5, damage=6):
         self.__trap_image = pg.image.load(r'Zarate_enzo_juego\recursos\tramps\0.png')
         self.__trap_image = pg.transform.scale(self.__trap_image,(w, h))
         self.__move_x = coord_x
@@ -14,7 +14,7 @@ class Tramp:
         self.__empuje = empuje
 
     @property
-    def get_rect(self):
+    def get_rect(self) -> int:
         """
         Devuelve el valor del atributo privado 'self.__rect'
         
@@ -24,7 +24,7 @@ class Tramp:
         return self.__rect
 
     @property
-    def get_damage(self):
+    def get_damage(self) -> int:
         """
         Devuelve el valor del atributo privado 'self.__damage'
         
@@ -32,8 +32,9 @@ class Tramp:
         self.__damage (int): valor del dicho atributo.
         """
         return self.__damage
+    
     @property
-    def get_empuje(self):
+    def get_empuje(self) -> int:
         """
         Devuelve el valor del atributo privado 'self.__empuje'
         
@@ -45,10 +46,14 @@ class Tramp:
     def move(self):
         self.__move_x -= self.__speed
         if self.__move_x + self.__rect.width < 0:
+            self.__move_y - 10
             self.__move_x = ANCHO_VENTANA
 
     def update(self):
         self.move()
 
     def draw(self, screen):
+        if DEBUG:
+            pg.draw.rect(self.__trap_image, "Blue", self.__rect)
+            
         screen.blit(self.__trap_image, (self.__move_x, self.__move_y))

@@ -61,7 +61,7 @@ while juego_ejecutandose:
         trampa.draw(screen)       
 
     nick.control_keys()
-    nick.update(lista_plataformas, lista_enemigos)
+    nick.update(lista_plataformas, lista_enemigos, lista_trampas)
     nick.draw(screen)
     # Actualizar pantalla
     pg.display.update()

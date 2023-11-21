@@ -33,7 +33,7 @@ class Jugador:
         self.__is_jumping = False
         self.__star_jump = False
         self.falling = False
-        self.__is_death = False
+        self.__colition_tramp_detected = False
         self.empuje = 50
      
         self.__frame_rate = frame_rate
@@ -44,11 +44,11 @@ class Jugador:
         self.__rect = self.__actual_img_animation.get_rect()
         self._plataform_colition = False
         self._grund_collition_rect = pg.Rect(self.__rect.x, self.__rect.y+self.__rect.h-10, self.__rect.w, 2)
-        self.__life_points = LIFE_POINTS
+        self.__life_points = 500
         self.counter = 1000
     
     @property
-    def get_rect(self):
+    def get_rect(self) -> int:
         """
         Devuelve el valor del atributo privado 'self.__rect'
         
@@ -58,7 +58,7 @@ class Jugador:
         return self.__rect
     
     @property
-    def get_life_points(self):
+    def get_life_points(self) -> int:
         """
         Devuelve el valor del atributo privado 'self.__life_points'
         
@@ -147,7 +147,7 @@ class Jugador:
             if self.__rect.colliderect(enemy.get_rect):
                 print("¡Colisión con enemigo!")
                 # Reducir puntos de vida
-                self.reduce_life_points(enemy.get_damage)
+                self.__life_points -= enemy.get_damage
                 print("Puntos de vida restantes:", self.__life_points)
 
                 # Empujar al jugador hacia atrás al recibir daño
@@ -157,14 +157,16 @@ class Jugador:
                 self.counter -= 1
                 break
     
-    def collition_tramp(self, trampas: list[Tramp]):
-        for trampa in trampas:
-            if self.get_rect.colliderect(trampa.get_rect):
+    def collition_tramp(self, tramps: list[Tramp]):
+        self.__colition_tramp_detected = False
+        for tramp in tramps:
+            if self.get_rect.colliderect(tramp.get_rect) and not self.__colition_tramp_detected:
                 print("Colisión con la trampa. Aplicando daño.")
-                self.reduce_life_points(trampa.get_damage)
-                self.move_back(trampa.get_empuje)
+                self.__life_points -= tramp.get_damage
+                self.move_back(tramp.get_empuje)
                 print(self.get_life_points)
-                break
+                self.__colition_tramp_detected = True
+                
 
     def collition_plataform(self, plataforms:list[Plataform]):
         for plataform in plataforms:
@@ -224,7 +226,7 @@ class Jugador:
             self.__move_x = 0
                 
 
-    def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo]):
+    def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         """
         Maneja el movimiento del jugador.
         """
@@ -234,7 +236,7 @@ class Jugador:
         self.applty_gravity()
         self.collition_plataform(plataforms)
         self.collition_enemy(enemies)
-        self.collition_tramp
+        self.collition_tramp(tramps)
        
     def do_animation(self):
         """
@@ -283,11 +285,11 @@ class Jugador:
         if lista_teclas_presionadas[pg.K_UP]:
             self.jump()
 
-    def update(self, plataformas: list[Plataform], enemies: list[Enemigo]):
+    def update(self, plataformas: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         """
         Actualiza el estado del jugador (movimiento y animación).
         """
-        self.do_movement(plataformas, enemies)
+        self.do_movement(plataformas, enemies, tramps)
         self.do_animation()
     
     def draw(self, screen: pg.surface.Surface):
