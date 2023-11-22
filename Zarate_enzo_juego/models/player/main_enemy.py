@@ -4,7 +4,7 @@ from models.constantes import GROUND_LEVEL, ANCHO_VENTANA
 from models.auxiliar import SurfaceManager as sf
 
 class Enemigo():
-    def __init__(self, coord_x, coord_y,w,h, speed_walk ,speed_atak,jump_time,damage, frame_rate=100):
+    def __init__(self, coord_x, coord_y,w,h, speed_walk, speed_atak, jump_time, damage, frame_rate=100):
         
         self.__up_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\up.png', 1, 1,(w,h))
         self.__up_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\up.png', 1, 1,(w,h), flip=True)
@@ -26,6 +26,7 @@ class Enemigo():
         self.__gravity = -1
         self.__is_on_ground = False
         self.__damage = damage
+        self.__push = 50
 
         self.__collite_top = False        
         self.__frame_rate = frame_rate
@@ -36,6 +37,7 @@ class Enemigo():
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
         self.__is_patrolling_right = False
+        
         
     @property
     def get_rect(self) -> int:
@@ -57,25 +59,22 @@ class Enemigo():
         """
         return self.__damage
     
+    @property
+    def get_push(self) -> int:
+        """
+        Devuelve el valor del atributo privado 'self.__push'
+        
+        DEVUELVE:
+        self.__push (int): valor del dicho atributo.
+        """
+        return self.__push
+    
     def set_x_animations(self, move_x: int, animation: list, look_r:bool):
         self.__move_x += move_x
         self.__actual_animation = animation
         self.__is_looking_right = look_r
 
-    def auto_move(self):
-        if self.__is_on_ground:
-            if self.__is_patrolling_right:
-                look_r = False
-                self.set_x_animations(self.__speed_walk, self.__walk_l, look_r)
-            else:
-                look_l = True
-                self.set_x_animations(-self.__speed_walk, self.__walk_r, look_l)
-
-            # Cambia de dirección para que no se pase de la pantalla
-            if self.__move_x <= 0 or self.__move_x >= ANCHO_VENTANA - self.__rect.width:
-                self.__is_patrolling_right = not self.__is_patrolling_right
-
-    def plataform_colition(self, plataforms:list[Plataform]):
+    def collition_plataform(self, plataforms:list[Plataform]):
         for plataform in plataforms:
             if self.__rect.colliderect(plataform.get_rect):
                 if self.__rect.bottom >= plataform.get_rect.top:
@@ -85,6 +84,20 @@ class Enemigo():
                     self.__gravity = 0
             else:
                 self.__plataform_colition = False
+
+    def auto_move(self):
+        if self.__is_on_ground or self.__plataform_colition:
+            if self.__is_patrolling_right:
+                look_r = False
+                self.set_x_animations(self.__speed_walk, self.__walk_l, look_r)
+            else:
+                look_r = True
+                self.set_x_animations(-self.__speed_walk, self.__walk_r, look_r)
+
+            # Cambia de dirección para que no se pase de la pantalla
+            if self.__move_x <= 0 or self.__move_x >= ANCHO_VENTANA - self.__rect.width:
+                self.__is_patrolling_right = not self.__is_patrolling_right
+
     def death(self):
         if self.__collite_top:
             pass

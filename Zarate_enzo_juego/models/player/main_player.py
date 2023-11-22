@@ -4,19 +4,21 @@ from models.constantes import ANCHO_VENTANA, DEBUG, GROUND_LEVEL, RECTIFY, LIFE_
 from models.platafroma import Plataform
 from models.player.main_enemy import Enemigo
 from models.tramps import Tramp
+from models.bullet import Bullet
+from models.Fruits import Fruit
 
 
 
 class Jugador:
-    def __init__(self, coord_x, coord_y,w,h:tuple, frame_rate = 60, speed_walk = 3, speed_run = 6):
+    def __init__(self, coord_x, coord_y,w ,h ,frame_rate = 200, speed_walk = 3, speed_run = 6):
         self.__iddle_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h), flip=True)
         self.__iddle_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h))
         self.__walk_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\walk\0.png', 3, 1,(w,h), flip=True)
         self.__walk_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\walk\0.png', 3, 1,(w,h))
         self.__run_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\run\0.png', 3, 1,(w,h), flip=True)
         self.__run_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\run\0.png', 3, 1,(w,h))
-        self.atack_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 3, 1,(w,h), flip=True)
-        self.atack_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 3, 1,(w,h))
+        self.atack_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 1, 1,(w,h), flip=True)
+        self.atack_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 1, 1,(w,h))
         self.__jump_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY), flip=True)
         self.__jump_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY))
         self.__die = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\die\0.png', 11, 1,(w,h)) 
@@ -26,15 +28,13 @@ class Jugador:
         self.__speed_walk = speed_walk
         self.__speed_run = speed_run
         self.__is_looking_right = True
-        self.__gravity_jump = 1
-        self.__gravity = -self.__gravity_jump
+        
+        self.__gravity = -1
         
         self.__jump = 15
         self.__is_jumping = False
         self.__star_jump = False
         self.falling = False
-        self.__colition_tramp_detected = False
-        self.empuje = 50
      
         self.__frame_rate = frame_rate
         self.update_time = pg.time.get_ticks()
@@ -42,10 +42,13 @@ class Jugador:
         self.__actual_animation = self.__iddle_r
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
+
+        self.__colition_tramp_detected = False
         self._plataform_colition = False
         self._grund_collition_rect = pg.Rect(self.__rect.x, self.__rect.y+self.__rect.h-10, self.__rect.w, 2)
-        self.__life_points = 500
+        self.__life_points = LIFE_POINTS
         self.counter = 1000
+        self.__atak = False
     
     @property
     def get_rect(self) -> int:
@@ -76,8 +79,16 @@ class Jugador:
         """
         self.__life_points -= damage
     
-    def move_back(self,amount):
-        self.__move_x - amount
+    def increase_life_points(self, increase: int):
+        if self.__life_points < LIFE_POINTS:
+            self.__life_points += increase
+        else:
+            self.__life_points = LIFE_POINTS
+    
+    def move_back(self, amount):
+        print("Moviendo hacia atrás:", amount)
+        self.__move_x -= amount
+
 
     def __set_x_animations_preset(self, move_x: int, animation_list: list[pg.surface.Surface], look_r: bool):
         """
@@ -142,63 +153,13 @@ class Jugador:
             self.__is_jumping = True
             self._plataform_colition = False
     
-    def collition_enemy(self, enemies: list[Enemigo]):
-        for enemy in enemies:
-            if self.__rect.colliderect(enemy.get_rect):
-                print("¡Colisión con enemigo!")
-                # Reducir puntos de vida
-                self.__life_points -= enemy.get_damage
-                print("Puntos de vida restantes:", self.__life_points)
-
-                # Empujar al jugador hacia atrás al recibir daño
-                self.__move_x += -self.empuje if self.__is_looking_right else self.empuje
-                self.__actual_animation = self.__die
-                self.__is_death = True
-                self.counter -= 1
-                break
-    
-    def collition_tramp(self, tramps: list[Tramp]):
-        self.__colition_tramp_detected = False
-        for tramp in tramps:
-            if self.get_rect.colliderect(tramp.get_rect) and not self.__colition_tramp_detected:
-                print("Colisión con la trampa. Aplicando daño.")
-                self.__life_points -= tramp.get_damage
-                self.move_back(tramp.get_empuje)
-                print(self.get_life_points)
-                self.__colition_tramp_detected = True
-                
-
-    def collition_plataform(self, plataforms:list[Plataform]):
-        for plataform in plataforms:
-            if self.__rect.colliderect(plataform.get_rect_ground_colition):
-                if self.__rect.bottom >= plataform.get_rect_ground_colition.top:
-                    self.__rect.bottom = plataform.get_rect_ground_colition.top
-                    self.__is_jumping = False
-                    self._plataform_colition = True
-                    self.__gravity = 0
-
-                elif self.__rect.colliderect(plataform.get_rect_top_colition):
-                    if self.__rect.top >= plataform.get_rect_top_colition.bottom:
-                        self.__rect.top = plataform.get_rect_top_colition.bottom
-                        print("hola")
-                        self._plataform_colition = False
-                        print(self._grund_collition_rect)
-                break
-                #   self.falling = False
-                # elif self.__rect.top >= plataform.get_rect.bottom:
-                #     print("hola")
-                #     self.falling = True
-            else:
-                self._plataform_colition = False
-            
-
     def applty_gravity(self):
         """
         Aplica la gravedad al movimiento en 'y' del jugador.
         """
         if (self.__is_jumping or self.__move_y < GROUND_LEVEL) and not self._plataform_colition:
             self.__move_y -= self.__gravity
-            self.__gravity-=self.__gravity_jump
+            self.__gravity-= 1
             self.__actual_animation = self.__jump_r if self.__is_looking_right else self.__jump_l
             self.__is_jumping = True
 
@@ -208,13 +169,56 @@ class Jugador:
                 self.__star_jump = True
                 self.__is_jumping = False
                 self.__gravity = 0
-                #self.falling = False
 
-        # if self.falling:
-        #     self.__move_y += 5
-        #     self.__gravity = 0
-        #     self.__jump = 0
-       
+    def atack(self):
+        self.__actual_animation = self.atack_r if self.__is_looking_right else self.atack_l
+        
+
+    def collition_enemy(self, enemies: list[Enemigo]):
+        for enemy in enemies:
+            if self.__rect.colliderect(enemy.get_rect):
+                print("¡Colisión con enemigo!")
+                # Reducir puntos de vida
+                self.__life_points -= enemy.get_damage
+                print("Puntos de vida restantes:", self.__life_points)
+
+                # Empujar al jugador hacia atrás al recibir daño
+                self.__move_x += -enemy.get_push if self.__is_looking_right else enemy.get_push
+                self.__actual_animation = self.__die
+                break
+    
+    def collition_tramp(self, tramps: list[Tramp]):
+        
+        for tramp in tramps:
+            if self.__rect.colliderect(tramp.get_rect):
+                print("Colision con la trampa. Aplicando daño.")
+                print("Posicion del jugador en x{0} en y{1}".format(self.__rect.x, self.__rect.y))
+                print("Posicion de la trampa en x{0} en y{1}".format(tramp.get_rect.x, tramp.get_rect.y))
+                self.reduce_life_points(tramp.get_damage)
+                self.move_back(tramp.get_push)
+                print("Puntos de vida restantes:", self.get_life_points)
+                print("Nueva posición del jugador:", self.__rect.x, self.__rect.y)
+                
+    def collition_fruit(self, fruits: list[Fruit]):
+        for fruit in fruits:
+            if self.__rect.colliderect(fruit.get_rect):
+                print("Aumentando vida.")
+                self.increase_life_points(fruit.get_increase)
+                print("Nuevos puntos de vida:", self.get_life_points)     
+                fruit.kill()    
+                
+    def collition_plataform(self, plataforms:list[Plataform]):
+        for plataform in plataforms:
+            if self.__rect.colliderect(plataform.get_rect_ground_colition):
+                if self.__rect.bottom >= plataform.get_rect_ground_colition.top:
+                    self.__rect.bottom = plataform.get_rect_ground_colition.top
+                    self.__is_jumping = False
+                    self._plataform_colition = True
+                    self.__gravity = 0
+                    break
+            else:
+                self._plataform_colition = False
+
     def __set_borders_limits(self):
         """
         Establece los límites de los bordes para el movimiento del jugador.
@@ -224,9 +228,15 @@ class Jugador:
 
         elif self.__rect.left <= 0:
             self.__move_x = 0
+       
                 
+    def collitions(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp], fruits: list[Fruit]):
+        self.collition_plataform(plataforms)
+        self.collition_enemy(enemies)
+        self.collition_tramp(tramps)
+        self.collition_fruit(fruits)
 
-    def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
+    def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp], fruits: list[Fruit]):
         """
         Maneja el movimiento del jugador.
         """
@@ -234,9 +244,8 @@ class Jugador:
         self.__rect.y =+ self.__move_y
         self.__set_borders_limits()
         self.applty_gravity()
-        self.collition_plataform(plataforms)
-        self.collition_enemy(enemies)
-        self.collition_tramp(tramps)
+        self.collitions(plataforms, enemies, tramps, fruits)
+        
        
     def do_animation(self):
         """
@@ -281,15 +290,19 @@ class Jugador:
                 self.walk(True, 'Left')
         else:
             self.stay()
+        
+        if lista_teclas_presionadas[pg.K_x]:
+            
+            self.atack()
 
         if lista_teclas_presionadas[pg.K_UP]:
             self.jump()
 
-    def update(self, plataformas: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
+    def update(self, plataformas: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp], fruits:list[Fruit]):
         """
         Actualiza el estado del jugador (movimiento y animación).
         """
-        self.do_movement(plataformas, enemies, tramps)
+        self.do_movement(plataformas, enemies, tramps, fruits)
         self.do_animation()
     
     def draw(self, screen: pg.surface.Surface):
@@ -306,5 +319,8 @@ class Jugador:
             pg.draw.rect(screen, "Black", rect_bottom)
             pg.draw.rect(screen, "Black", rect_top)
         
+        #health bar
+        pg.draw.rect(screen, "Red", (self.__rect.x-8, self.__rect.y - 20, LIFE_POINTS, 10))
+        pg.draw.rect(screen, "Green", (self.__rect.x-8, self.__rect.y - 20, self.__life_points, 10))
         screen.blit(self.__actual_img_animation, self.__rect)
         

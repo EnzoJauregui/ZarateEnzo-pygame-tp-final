@@ -32,9 +32,10 @@ class Plataform:
         """
         return self.__rect_top_colition
     
-    def draw(self, screen):
+    def draw(self, screen:pg.Surface):
         if DEBUG:
             pg.draw.rect(screen, 'red', self.__rect)
+            
         screen.blit(self.__image, self.__rect)
         pg.draw.rect(screen, "Green", self.__rect_ground_colition)
         pg.draw.rect(screen, "Green", self.__rect_top_colition)
