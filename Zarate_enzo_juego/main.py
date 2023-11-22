@@ -26,25 +26,40 @@ lista_plataformas.append(Plataform(250, 380, 100, 30, 3))
 lista_plataformas.append(Plataform(650, 500, 100, 30, 5))
 
 lista_enemigos = []
-lista_enemigos.append(Enemigo(100, 0, 40, 40, 2,4, 2, 2))
-lista_enemigos.append(Enemigo(350, 0, 40, 40,2, 3, 2,2))
-lista_enemigos.append(Enemigo(500, 0, 40, 40,2,1, 4,2))
+num_enemies_to_generate = 3 
+nuevos_enemigos = Enemigo.generate_enemies(num_enemies_to_generate)
+lista_enemigos.extend(nuevos_enemigos)
 
-lista_trampas = [Tramp(200, 400, 40, 40, 50)]
+lista_trampas = []
+num_tramps_to_generate = 3
+nuevas_trampas = Tramp.generate_tramps(num_tramps_to_generate)
+lista_trampas.extend(nuevas_trampas)
 
-lista_fruits = [Fruit(100,450,50,50,10)]
+lista_fruits = []
 
+num_fruits_to_generate = 5 
+nuevas_frutas = Fruit.generate_fruits(num_fruits_to_generate)
+lista_fruits.extend(nuevas_frutas)
+
+max_time = 180
 
 # Reloj para controlar el FPS
 clock = pg.time.Clock()
 # Bucle principal
 juego_ejecutandose = True
+inicio_tiempo = pg.time.get_ticks()
+
 while juego_ejecutandose:
+    # Obtengo el tiempo transcurrido en milisegundos
+    tiempo_transcurrido = (pg.time.get_ticks() - inicio_tiempo) // 1000  # Lo convierto a segundos
+
     lista_eventos = pg.event.get()
     for event in lista_eventos:
         if event.type == pg.QUIT:
             print('Estoy CERRANDO el JUEGO')
             juego_ejecutandose = False 
+    if tiempo_transcurrido >= max_time:
+        juego_ejecutandose = False
 
     # Dibujar fondo y plataformas
     screen.blit(back_img, back_img.get_rect())
@@ -61,14 +76,27 @@ while juego_ejecutandose:
         trampa.update()
         trampa.draw(screen) 
 
-    for fruit in lista_fruits:
-        fruit.update()
-        fruit.draw(screen)
+    if len(lista_fruits) > 0:
+        frutas_a_eliminar = []
+
+        for i in range(len(lista_fruits)):
+            if lista_fruits[i].increase_life(nick):
+                frutas_a_eliminar.append(i)
+            else:
+                lista_fruits[i].update(nick)
+                lista_fruits[i].draw(screen)
+
+        # Elimina las frutas marcadas para eliminación
+        for index in reversed(frutas_a_eliminar):
+            lista_fruits.pop(index)
 
     #fruits.draw()
     nick.control_keys()
-    nick.update(lista_plataformas, lista_enemigos, lista_trampas, lista_fruits)
+    nick.update(lista_plataformas, lista_enemigos, lista_trampas)
     nick.draw(screen)
+    font = pg.font.Font(None, 36)
+    tiempo_texto = font.render(f'Tiempo: {tiempo_transcurrido} segundos', True, "Black")
+    screen.blit(tiempo_texto, (10, 10))
     # Actualizar pantalla
     pg.display.update()
 

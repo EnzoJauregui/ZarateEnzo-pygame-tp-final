@@ -1,10 +1,11 @@
 import pygame as pg
+import random
 from models.platafroma import Plataform
-from models.constantes import GROUND_LEVEL, ANCHO_VENTANA
+from models.constantes import GROUND_LEVEL, ANCHO_VENTANA, PUSH
 from models.auxiliar import SurfaceManager as sf
 
 class Enemigo():
-    def __init__(self, coord_x, coord_y,w,h, speed_walk, speed_atak, jump_time, damage, frame_rate=100):
+    def __init__(self, coord_x, coord_y,w,h, speed_walk,damage, frame_rate=100):
         
         self.__up_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\up.png', 1, 1,(w,h))
         self.__up_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\up.png', 1, 1,(w,h), flip=True)
@@ -16,17 +17,17 @@ class Enemigo():
         self.__attack_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\atak.png', 3, 1,(w,h), flip=True)
         self.__fall_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\fall.png', 1, 1,(w,h))
         self.__fall_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\fall.png', 1, 1,(w,h), flip=True)
-        self.__jump_time = jump_time
+        
         self.__move_x = coord_x
         self.__move_y = coord_y
         self.__speed_walk = speed_walk
-        self.__speed_atak = speed_atak
+        self.__speed_atak = self.__speed_walk*1.5
         self.__is_looking_right = True
         self.__plataform_colition = False
         self.__gravity = -1
         self.__is_on_ground = False
         self.__damage = damage
-        self.__push = 50
+        self.__push = PUSH
 
         self.__collite_top = False        
         self.__frame_rate = frame_rate
@@ -147,3 +148,15 @@ class Enemigo():
             screen (pg.surface.Surface): Superficie de la pantalla.
         """
         screen.blit(self.__actual_animation[self.__initial_frame], self.__rect)
+    
+    @staticmethod
+    def generate_enemies(num_enemies):
+        enemies = []
+        for _ in range(num_enemies):
+            x = random.randint(50, ANCHO_VENTANA-40)
+            y = 0
+            speed_walk = random.uniform(1, 5)
+            damage = random.randint(1, 3)
+            enemy = Enemigo(x, y, 40, 40, speed_walk, damage)
+            enemies.append(enemy)
+        return enemies

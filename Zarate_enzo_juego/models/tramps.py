@@ -1,11 +1,11 @@
 import pygame as pg
 import random
 from models.auxiliar import SurfaceManager as sf
-from models.constantes import ANCHO_VENTANA, DEBUG
+from models.constantes import ANCHO_VENTANA, DEBUG, PUSH
 
 path = r'Zarate_enzo_juego\recursos\tramps\0.png'
 class Tramp:
-    def __init__(self, coord_x, coord_y, w, h,push,path=r'Zarate_enzo_juego\recursos\tramps\1.png', speed=5, damage=1, frame_rate = 60):
+    def __init__(self, coord_x, coord_y, w, h,path=r'Zarate_enzo_juego\recursos\tramps\1.png', speed=5, damage=1, frame_rate = 60):
         self.__tramp_animation = sf.get_surface_from_spritesheet(path,8,1,(w,h),flip=True)
         self.__move_x = coord_x
         self.__move_y = coord_y
@@ -16,7 +16,7 @@ class Tramp:
         self.__actual_img_animation = self.__tramp_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
         self.__damage = damage
-        self.__push = push
+        self.__push = PUSH
         self.update_time = pg.time.get_ticks()
         
         
@@ -52,8 +52,6 @@ class Tramp:
         """
         return self.__push
     
-   
-    
 
     def move(self):
         self.__move_x -= self.__speed
@@ -85,3 +83,13 @@ class Tramp:
             pg.draw.rect(self.__actual_img_animation, "Blue", self.__rect)
             
         screen.blit(self.__actual_img_animation, self.__rect)
+
+    @staticmethod
+    def generate_tramps(num_tramps):
+        tramps = []
+        for _ in range(num_tramps):
+            x = ANCHO_VENTANA - 50
+            y = random.randint(0, 650)
+            tramp = Tramp(x, y, 50, 50)  # Ajusta los parámetros según sea necesario
+            tramps.append(tramp)
+        return tramps

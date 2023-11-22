@@ -11,6 +11,7 @@ CONGIG_FILE_PATH = "Pygame\models\config.json"
 PLATAFORM_LIMIT = 300
 HEIGHT_RECT = 3
 LIFE_POINTS = 50
+PUSH = 50
 
 def open_config() -> dict:
     """

@@ -48,6 +48,7 @@ class Jugador:
         self._grund_collition_rect = pg.Rect(self.__rect.x, self.__rect.y+self.__rect.h-10, self.__rect.w, 2)
         self.__life_points = LIFE_POINTS
         self.counter = 1000
+        self.__points = 0
         self.__atak = False
     
     @property
@@ -199,13 +200,13 @@ class Jugador:
                 print("Puntos de vida restantes:", self.get_life_points)
                 print("Nueva posición del jugador:", self.__rect.x, self.__rect.y)
                 
-    def collition_fruit(self, fruits: list[Fruit]):
-        for fruit in fruits:
-            if self.__rect.colliderect(fruit.get_rect):
-                print("Aumentando vida.")
-                self.increase_life_points(fruit.get_increase)
-                print("Nuevos puntos de vida:", self.get_life_points)     
-                fruit.kill()    
+    # def collition_fruit(self, fruits: list[Fruit]):
+    #     for fruit in fruits:
+    #         if self.__rect.colliderect(fruit.get_rect):
+    #             print("Aumentando vida.")
+    #             self.increase_life_points(fruit.get_increase)
+    #             print("Nuevos puntos de vida:", self.get_life_points)     
+    #             fruit.kill()    
                 
     def collition_plataform(self, plataforms:list[Plataform]):
         for plataform in plataforms:
@@ -230,13 +231,13 @@ class Jugador:
             self.__move_x = 0
        
                 
-    def collitions(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp], fruits: list[Fruit]):
+    def collitions(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         self.collition_plataform(plataforms)
         self.collition_enemy(enemies)
         self.collition_tramp(tramps)
-        self.collition_fruit(fruits)
+       
 
-    def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp], fruits: list[Fruit]):
+    def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         """
         Maneja el movimiento del jugador.
         """
@@ -244,7 +245,7 @@ class Jugador:
         self.__rect.y =+ self.__move_y
         self.__set_borders_limits()
         self.applty_gravity()
-        self.collitions(plataforms, enemies, tramps, fruits)
+        self.collitions(plataforms, enemies, tramps)
         
        
     def do_animation(self):
@@ -298,11 +299,11 @@ class Jugador:
         if lista_teclas_presionadas[pg.K_UP]:
             self.jump()
 
-    def update(self, plataformas: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp], fruits:list[Fruit]):
+    def update(self, plataformas: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         """
         Actualiza el estado del jugador (movimiento y animación).
         """
-        self.do_movement(plataformas, enemies, tramps, fruits)
+        self.do_movement(plataformas, enemies, tramps)
         self.do_animation()
     
     def draw(self, screen: pg.surface.Surface):
@@ -323,4 +324,3 @@ class Jugador:
         pg.draw.rect(screen, "Red", (self.__rect.x-8, self.__rect.y - 20, LIFE_POINTS, 10))
         pg.draw.rect(screen, "Green", (self.__rect.x-8, self.__rect.y - 20, self.__life_points, 10))
         screen.blit(self.__actual_img_animation, self.__rect)
-        
