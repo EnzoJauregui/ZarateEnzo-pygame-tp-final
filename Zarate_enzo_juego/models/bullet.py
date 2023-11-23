@@ -1,42 +1,51 @@
 import pygame as pg
-from models.constantes import DEBUG
+from models.constantes import DEBUG, ANCHO_VENTANA
+from models.player.main_enemy import Enemigo
 
 
 class Bullet(pg.sprite.Sprite):
-    def __init__(self, x, y, w, h, direction, speed):
-        self.__bullet_image = pg.image.load(r'Zarate_enzo_juego\recursos\bullet\1.png')
-        self.__bullet_image = pg.transform.scale(self.__bullet_image,(w, h))
-        self.__bullet_collition_image = pg.image.load(r'Zarate_enzo_juego\recursos\bullet\2.png')
-        self.__bullet_collition_image = pg.transform.scale(self.__bullet_collition_image,(w, h))
-        self.__actual_image = self.__bullet_image
-        self.__move_x = x
-        self.__move_y = y
-        self.__direction = direction
-        self.__collide = False
-
-        self.__speed = speed
-        self.__rect = self.__actual_image.get_rect()
-
-    def bullet_move(self):
-        self.__move_x += self.__speed if self.__direction else -self.__speed
-    
-    def impact_to(self, person):
-        if self.__rect.colliderect(person.get_rect):
-            
-            self.__actual_image = self.__bullet_collition_image
-            del(person)
-            self.__collide = True
-        else:
-            self.__collide = False
-        return self.__collide
-
-
-    
-    def do_movement(self):
-        self.bullet_move()
-
-    def draw(self, screen):
-        if DEBUG:
-            pg.draw.rect(screen, "Red", self.__rect)
+    def __init__(self, x, y, direction, img_path = False):
+        super().__init__()
+        self.__load_img(img_path)
         
-        screen.blit(self.__actual_image, (self.__move_x, self.__move_y))
+        self.__rect = self.image.get_rect(center=(x, y))
+        self.__direction = direction
+        self.__speed = 2
+        self.__alive = True
+        self.__damage = 2
+
+    @property
+    def rect(self):
+        return self.__rect
+    
+    @property
+    def is_alive(self):
+        return self.__alive
+    
+    def __load_img(self, img_path: bool):
+        if img_path:
+            self.image = pg.image.load(r'Zarate_enzo_juego\recursos\bullet\1.png')
+        else: 
+            self.image = pg.Surface((4, 20))
+            self.image.fill('Black')
+
+    def handle_collision(self, player, enemies: Enemigo):
+        # Verificar colisión con el jugador
+        if self.__rect.colliderect(player.get_rect):
+            # Realizar acciones cuando hay colisión con el jugador
+            player.reduce_life_points(self.__damage)
+            self.__alive = False
+
+        # Verificar colisión con los enemigos
+        for enemy in enemies:
+            if self.__rect.colliderect(enemy.get_rect):
+                # Realizar acciones cuando hay colisión con un enemigo
+                enemy.kill()
+                self.__alive = False
+                break
+
+    def update(self):
+        self.__rect.x += self.__speed if self.__direction else -self.__speed
+
+        if 0 >= self.__rect.x <= ANCHO_VENTANA:
+            self.kill()

@@ -20,10 +20,10 @@ nick = Jugador(0, 0, 30, 30)
 
 # Creación de plataformas
 lista_plataformas = []
-lista_plataformas.append(Plataform(350, 580, 100, 30, 3))
-lista_plataformas.append(Plataform(450, 500, 100, 30, 5))
-lista_plataformas.append(Plataform(250, 380, 100, 30, 3))
-lista_plataformas.append(Plataform(650, 500, 100, 30, 5))
+lista_plataformas.append(Plataform(350, 580, 150, 30, 3))
+lista_plataformas.append(Plataform(450, 500, 150, 30, 5))
+lista_plataformas.append(Plataform(250, 380, 150, 30, 3))
+lista_plataformas.append(Plataform(650, 500, 150, 30, 5))
 
 lista_enemigos = []
 num_enemies_to_generate = 3 
@@ -58,6 +58,7 @@ while juego_ejecutandose:
         if event.type == pg.QUIT:
             print('Estoy CERRANDO el JUEGO')
             juego_ejecutandose = False 
+
     if tiempo_transcurrido >= max_time:
         juego_ejecutandose = False
 
@@ -69,7 +70,7 @@ while juego_ejecutandose:
 
     if len(lista_enemigos) > 0: 
         for enemigo in lista_enemigos:
-            enemigo.update()
+            enemigo.update(lista_plataformas)
             enemigo.draw(screen) 
 
     for trampa in lista_trampas:
@@ -86,13 +87,17 @@ while juego_ejecutandose:
                 lista_fruits[i].update(nick)
                 lista_fruits[i].draw(screen)
 
-        # Elimina las frutas marcadas para eliminación
+        # Elimina las frutas marcadas
         for index in reversed(frutas_a_eliminar):
             lista_fruits.pop(index)
 
-    #fruits.draw()
+    for bala in nick.get_bullets:
+        bala.update()
+    
+    nick.get_bullets.draw(screen)
+
     nick.control_keys()
-    nick.update(lista_plataformas, lista_enemigos, lista_trampas)
+    nick.update(screen, lista_plataformas, lista_enemigos, lista_trampas)
     nick.draw(screen)
     font = pg.font.Font(None, 36)
     tiempo_texto = font.render(f'Tiempo: {tiempo_transcurrido} segundos', True, "Black")

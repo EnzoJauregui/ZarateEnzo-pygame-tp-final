@@ -13,6 +13,10 @@ class Plataform:
         self.__rect_top_colition = pg.Rect(self.__rect.x, self.__rect.y+ self.__rect.h, self.__rect.w, HEIGHT_RECT)
     
     @property
+    def get_rect(self):
+        return self.__rect
+
+    @property
     def get_rect_ground_colition(self) -> int:
         """
         Devuelve el valor del atributo privado 'self.__rect_ground_colition'

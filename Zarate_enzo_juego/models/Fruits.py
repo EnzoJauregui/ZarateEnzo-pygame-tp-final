@@ -5,7 +5,7 @@ from models.constantes import ANCHO_VENTANA, GROUND_LEVEL
 import random
 
 class Fruit(pg.sprite.Sprite):
-    def __init__(self,x, y, w, h, increase, frame_rate = 60):
+    def __init__(self,x, y, w, h, increase_life, increase_points, frame_rate = 60):
         super().__init__()
         self.__actual_animation = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego/recursos/Fruits/Apple.png',17, 1,(w,h))
         self.__frame_rate = frame_rate
@@ -14,7 +14,8 @@ class Fruit(pg.sprite.Sprite):
         self.__rect = self.__actual_img_animation.get_rect()
         self.__rect.x = x
         self.__rect.y = y
-        self.__increase = increase
+        self.__increase_life = increase_life
+        self.increase_points = increase_points
         self.__points = False
         self.update_time = pg.time.get_ticks()
         
@@ -25,12 +26,14 @@ class Fruit(pg.sprite.Sprite):
 
     @property
     def get_increase(self):
-        return self.__increase
+        return self.__increase_life
     
     def increase_life(self, player):
         if self.__rect.colliderect(player.get_rect):
-            player.increase_life_points(self.__increase)
+            player.increase_life_points(self.__increase_life)
+            player.increase_points(self.increase_points)
             print(f"Puntos de vida incrementados: {player.get_life_points}")
+            print(f"Puntos incrementados: {player.get_points}")
             return True
         
     def do_animation(self):
@@ -59,8 +62,9 @@ class Fruit(pg.sprite.Sprite):
         for _ in range(num_fruits):
             x = random.randint(50, ANCHO_VENTANA - 50)
             y = random.randint(150, GROUND_LEVEL)
-            increase = random.randint(5, 15)  
-            fruit = Fruit(x, y, 50, 50, increase)
+            increase_life = random.randint(5, 15)  
+            increase_points = random.randint(10, 70) 
+            fruit = Fruit(x, y, 50, 50, increase_life, increase_points)
             fruits.append(fruit)
         return fruits
 

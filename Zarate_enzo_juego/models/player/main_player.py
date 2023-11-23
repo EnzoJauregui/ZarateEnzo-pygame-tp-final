@@ -43,13 +43,16 @@ class Jugador:
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
 
-        self.__colition_tramp_detected = False
         self._plataform_colition = False
         self._grund_collition_rect = pg.Rect(self.__rect.x, self.__rect.y+self.__rect.h-10, self.__rect.w, 2)
         self.__life_points = LIFE_POINTS
         self.counter = 1000
+
+        self.__bullet_ready = True
+        self.__bullet_time = 0
+        self.__bullet_group = pg.sprite.Group()
+        self.__bullet_cooldown = 500
         self.__points = 0
-        self.__atak = False
     
     @property
     def get_rect(self) -> int:
@@ -70,6 +73,30 @@ class Jugador:
         self.__life_points (int): valor del dicho atributo.
         """
         return self.__life_points
+    
+    @property
+    def get_points(self):
+        return self.__points
+
+    @property
+    def get_bullets(self) -> list[Bullet]:
+        return self.__bullet_group
+    
+    def bullet_shoot(self):  # disparar laser
+        if self.__bullet_ready:
+            print('!piu piu!')
+            self.__bullet_group.add(self.create_bullet())
+            self.__bullet_ready = False
+            self.__bullet_time = pg.time.get_ticks()
+    
+    def create_bullet(self):
+        return Bullet(self.__rect.centerx, self.__rect.centery, self.__is_looking_right, True)
+
+    def recharge(self):
+        if not self.__bullet_ready:
+            current_time = pg.time.get_ticks()
+            if current_time - self.__bullet_time >= self.__bullet_cooldown:
+                self.__bullet_ready = True
 
     def reduce_life_points(self, damage: int):
         """
@@ -80,6 +107,9 @@ class Jugador:
         """
         self.__life_points -= damage
     
+    def increase_points(self, increase):
+        self.__points += increase
+    
     def increase_life_points(self, increase: int):
         if self.__life_points < LIFE_POINTS:
             self.__life_points += increase
@@ -89,7 +119,6 @@ class Jugador:
     def move_back(self, amount):
         print("Moviendo hacia atrás:", amount)
         self.__move_x -= amount
-
 
     def __set_x_animations_preset(self, move_x: int, animation_list: list[pg.surface.Surface], look_r: bool):
         """
@@ -170,9 +199,6 @@ class Jugador:
                 self.__star_jump = True
                 self.__is_jumping = False
                 self.__gravity = 0
-
-    def atack(self):
-        self.__actual_animation = self.atack_r if self.__is_looking_right else self.atack_l
         
 
     def collition_enemy(self, enemies: list[Enemigo]):
@@ -199,20 +225,12 @@ class Jugador:
                 self.move_back(tramp.get_push)
                 print("Puntos de vida restantes:", self.get_life_points)
                 print("Nueva posición del jugador:", self.__rect.x, self.__rect.y)
-                
-    # def collition_fruit(self, fruits: list[Fruit]):
-    #     for fruit in fruits:
-    #         if self.__rect.colliderect(fruit.get_rect):
-    #             print("Aumentando vida.")
-    #             self.increase_life_points(fruit.get_increase)
-    #             print("Nuevos puntos de vida:", self.get_life_points)     
-    #             fruit.kill()    
-                
+                          
     def collition_plataform(self, plataforms:list[Plataform]):
         for plataform in plataforms:
-            if self.__rect.colliderect(plataform.get_rect_ground_colition):
-                if self.__rect.bottom >= plataform.get_rect_ground_colition.top:
-                    self.__rect.bottom = plataform.get_rect_ground_colition.top
+            if self.__rect.colliderect(plataform.get_rect):
+                if self.__rect.bottom >= plataform.get_rect.top:
+                    self.__rect.bottom = plataform.get_rect.top
                     self.__is_jumping = False
                     self._plataform_colition = True
                     self.__gravity = 0
@@ -229,13 +247,11 @@ class Jugador:
 
         elif self.__rect.left <= 0:
             self.__move_x = 0
-       
-                
+                  
     def collitions(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         self.collition_plataform(plataforms)
         self.collition_enemy(enemies)
-        self.collition_tramp(tramps)
-       
+        self.collition_tramp(tramps)  
 
     def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         """
@@ -246,8 +262,7 @@ class Jugador:
         self.__set_borders_limits()
         self.applty_gravity()
         self.collitions(plataforms, enemies, tramps)
-        
-       
+           
     def do_animation(self):
         """
         Controla las acciones del jugador según las teclas presionadas.
@@ -292,19 +307,24 @@ class Jugador:
         else:
             self.stay()
         
-        if lista_teclas_presionadas[pg.K_x]:
-            
-            self.atack()
+        if lista_teclas_presionadas[pg.K_x] and self.__bullet_ready:
+            self.bullet_shoot()
+            self.__bullet_ready = False
+            self.bullet_time = pg.time.get_ticks()
+            print("shot")
 
         if lista_teclas_presionadas[pg.K_UP]:
             self.jump()
 
-    def update(self, plataformas: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
+    def update(self,screen, plataformas: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         """
         Actualiza el estado del jugador (movimiento y animación).
         """
+        self.recharge()
         self.do_movement(plataformas, enemies, tramps)
         self.do_animation()
+        self.__bullet_group.draw(screen)
+        self.__bullet_group.update()
     
     def draw(self, screen: pg.surface.Surface):
         """
@@ -324,3 +344,4 @@ class Jugador:
         pg.draw.rect(screen, "Red", (self.__rect.x-8, self.__rect.y - 20, LIFE_POINTS, 10))
         pg.draw.rect(screen, "Green", (self.__rect.x-8, self.__rect.y - 20, self.__life_points, 10))
         screen.blit(self.__actual_img_animation, self.__rect)
+        

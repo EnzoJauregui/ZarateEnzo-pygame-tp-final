@@ -1,14 +1,13 @@
 import pygame as pg
 import random
 from models.platafroma import Plataform
-from models.constantes import GROUND_LEVEL, ANCHO_VENTANA, PUSH
+from models.constantes import GROUND_LEVEL, ANCHO_VENTANA, PUSH, DEBUG
 from models.auxiliar import SurfaceManager as sf
 
-class Enemigo():
+class Enemigo(pg.sprite.Sprite):
     def __init__(self, coord_x, coord_y,w,h, speed_walk,damage, frame_rate=100):
-        
-        self.__up_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\up.png', 1, 1,(w,h))
-        self.__up_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\up.png', 1, 1,(w,h), flip=True)
+        super().__init__()
+
         self.__walk_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\walk.png', 3, 1,(w,h))
         self.__walk_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\walk.png', 3, 1,(w,h), flip=True)
         self.__die_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\die.png', 9, 1,(w,h))
@@ -17,7 +16,7 @@ class Enemigo():
         self.__attack_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\atak.png', 3, 1,(w,h), flip=True)
         self.__fall_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\fall.png', 1, 1,(w,h))
         self.__fall_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\fall.png', 1, 1,(w,h), flip=True)
-        
+
         self.__move_x = coord_x
         self.__move_y = coord_y
         self.__speed_walk = speed_walk
@@ -29,7 +28,7 @@ class Enemigo():
         self.__damage = damage
         self.__push = PUSH
 
-        self.__collite_top = False        
+        self.__collite_top = False
         self.__frame_rate = frame_rate
         self.update_time = pg.time.get_ticks()
 
@@ -38,38 +37,38 @@ class Enemigo():
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
         self.__is_patrolling_right = False
-        
-        
+
+
     @property
     def get_rect(self) -> int:
         """
         Devuelve el valor del atributo privado 'self.__rect'
-        
+
         DEVUELVE:
         self.__rect (int): valor del dicho atributo.
         """
         return self.__rect
-    
+
     @property
     def get_damage(self) -> int:
         """
         Devuelve el valor del atributo privado 'self.__damage'
-        
+
         DEVUELVE:
         self.__damage (int): valor del dicho atributo.
         """
         return self.__damage
-    
+
     @property
     def get_push(self) -> int:
         """
         Devuelve el valor del atributo privado 'self.__push'
-        
+
         DEVUELVE:
         self.__push (int): valor del dicho atributo.
         """
         return self.__push
-    
+
     def set_x_animations(self, move_x: int, animation: list, look_r:bool):
         self.__move_x += move_x
         self.__actual_animation = animation
@@ -80,12 +79,26 @@ class Enemigo():
             if self.__rect.colliderect(plataform.get_rect):
                 if self.__rect.bottom >= plataform.get_rect.top:
                     self.__rect.bottom = plataform.get_rect.top
+                    self.__limit_r = plataform.get_rect.x + plataform.get_rect.w
+                    self.__limit_l = plataform.get_rect.x
                     self.__plataform_colition = True
-                    print(self.__plataform_colition)
+                    self.__is_on_ground = True
                     self.__gravity = 0
+                    
+                    break
             else:
                 self.__plataform_colition = False
 
+    def limit_patrol(self, limit_l: int, limit_r: int):
+
+        if self.__rect.x <= limit_l:
+            self.__rect.x = limit_l  # Ajusta la posición al límite izquierdo
+            self.__is_patrolling_right = True
+            
+        elif self.__rect.x >= limit_r:
+            self.__rect.x = limit_r  # Ajusta la posición al límite derecho
+            self.__is_patrolling_right = False
+            
     def auto_move(self):
         if self.__is_on_ground or self.__plataform_colition:
             if self.__is_patrolling_right:
@@ -95,18 +108,19 @@ class Enemigo():
                 look_r = True
                 self.set_x_animations(-self.__speed_walk, self.__walk_r, look_r)
 
-            # Cambia de dirección para que no se pase de la pantalla
-            if self.__move_x <= 0 or self.__move_x >= ANCHO_VENTANA - self.__rect.width:
-                self.__is_patrolling_right = not self.__is_patrolling_right
-
+            if self.__plataform_colition:
+                self.limit_patrol(self.__limit_l, self.__limit_r - self.__rect.width)
+            else:
+                self.limit_patrol(0, ANCHO_VENTANA - self.__rect.width)
+            
     def death(self):
         if self.__collite_top:
             pass
 
     def applty_gravity(self):
         if (self.__move_y < GROUND_LEVEL) and not self.__plataform_colition:
-            self.__move_y += self.__gravity 
-            self.__gravity += 1
+            self.__move_y -= self.__gravity
+            self.__gravity -= 1
             self.__actual_animation = self.__fall_r if self.__is_looking_right else self.__fall_l
 
             if self.__move_y >= GROUND_LEVEL:
@@ -114,9 +128,10 @@ class Enemigo():
                 self.__move_y = GROUND_LEVEL
                 self.__gravity = 0
                 self.__is_patrolling_right = True
-            
-    def do_movement(self):
+
+    def do_movement(self,plataforms: list[Plataform]):
         self.applty_gravity()
+        self.collition_plataform(plataforms)
         self.auto_move()
         self.__rect.x = self.__move_x
         self.__rect.y = self.__move_y
@@ -126,18 +141,18 @@ class Enemigo():
             self.__actual_img_animation = self.__fall_r if self.__is_looking_right else self.__fall_l
         else:
             self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
-            
+
             if pg.time.get_ticks() - self.update_time >= self.__frame_rate:
                 self.__initial_frame += 1
                 if self.__initial_frame >= len(self.__actual_animation):
                     self.__initial_frame = 0
                 self.update_time = pg.time.get_ticks()
 
-    def update(self):
+    def update(self,plataforms: list[Plataform]):
         """
         Actualiza el estado del enemigo.
         """
-        self.do_movement()
+        self.do_movement(plataforms)
         self.do_animation()
 
     def draw(self, screen: pg.surface.Surface):
@@ -148,7 +163,10 @@ class Enemigo():
             screen (pg.surface.Surface): Superficie de la pantalla.
         """
         screen.blit(self.__actual_animation[self.__initial_frame], self.__rect)
-    
+
+        if DEBUG:
+            pg.draw.rect(screen, "Blue", self.__rect)
+
     @staticmethod
     def generate_enemies(num_enemies):
         enemies = []
