@@ -34,7 +34,6 @@ class Jugador:
         self.__jump = 15
         self.__is_jumping = False
         self.__star_jump = False
-        self.falling = False
      
         self.__frame_rate = frame_rate
         self.update_time = pg.time.get_ticks()
@@ -55,59 +54,102 @@ class Jugador:
         self.__points = 0
     
     @property
-    def get_rect(self) -> int:
+    def get_rect(self) -> pg.Rect:
         """
-        Devuelve el valor del atributo privado 'self.__rect'
-        
-        DEVUELVE:
-        self.__rect (int): valor del dicho atributo.
+        Devuelve el rectángulo de colision del jugador.
+
+        DEVUELVE
+        self.__rect (pg.Rect): Rectangulo de colisión del jugador.
         """
         return self.__rect
     
     @property
     def get_life_points(self) -> int:
         """
-        Devuelve el valor del atributo privado 'self.__life_points'
-        
+        Devuelve los puntos de vida actuales del jugador.
+
         DEVUELVE:
-        self.__life_points (int): valor del dicho atributo.
+        self.__life_points (int): Puntos de vida actuales del jugador.
         """
         return self.__life_points
     
     @property
-    def get_points(self):
+    def get_points(self) -> int:
+        """
+        Devuelve la puntuación actual del jugador.
+
+        DEVUELVE:
+        self.__points (int): Puntuación actual del jugador.
+        """
         return self.__points
 
     @property
-    def get_bullets(self) -> list[Bullet]:
+    def get_bullets(self) -> pg.sprite.Group:
+        """
+        Devuelve el grupo de balas del jugador.
+
+        DEVUELVE:
+        self.__bullet_group (pg.sprite.Group): Grupo de balas del jugador.
+        """
         return self.__bullet_group
     
-    def bullet_shoot(self):  # disparar laser
+    def bullet_shoot(self):
+        """
+        Dispara una bala desde la posición del jugador.
+        """
         if self.__bullet_ready:
-            print('!piu piu!')
+           
             self.__bullet_group.add(self.create_bullet())
             self.__bullet_ready = False
             self.__bullet_time = pg.time.get_ticks()
     
-    def create_bullet(self):
+    def create_bullet(self) -> Bullet:
+        """
+        Crea una instancia de la clase Bullet en la posición del jugador.
+
+        DEVUELVE:
+        Bullet: Objeto de la clase Bullet.
+        """
         return Bullet(self.__rect.centerx, self.__rect.centery, self.__is_looking_right, True)
 
     def recharge(self):
+        """
+        Recarga el tiempo de espera para poder disparar otra bala.
+        """
         if not self.__bullet_ready:
             current_time = pg.time.get_ticks()
             if current_time - self.__bullet_time >= self.__bullet_cooldown:
                 self.__bullet_ready = True
 
-    def reduce_life_points(self, damage: int):
+    def check_bullet_collision(self, bullets: pg.sprite.Group):
         """
-        Reduce los puntos de vida.
+        Verifica las colisiones entre las balas del jugador y un grupo de balas enemigas.
 
         RECIBE:
-        damage (int): valor que se descontaran a los puntos de vida
+        bullets (pg.sprite.Group): Grupo de balas enemigas.
+        """
+        for bullet in bullets:
+            if self.__rect.colliderect(bullet.rect):
+                print("me dio")
+                
+                break
+
+    def reduce_life_points(self, damage: int):
+        """
+        Reduce los puntos de vida del jugador en función del daño recibido por parametro.
+
+        RECIBE:
+        damage (int): Valor del daño a descontar de los puntos de vida.
         """
         self.__life_points -= damage
     
     def increase_points(self, increase):
+        """
+        Aumenta la puntuación del jugador.
+
+        RECIBE:
+        increase (int): Valor a sumar a la puntuación actual.
+        """
         self.__points += increase
     
     def increase_life_points(self, increase: int):
@@ -117,7 +159,12 @@ class Jugador:
             self.__life_points = LIFE_POINTS
     
     def move_back(self, amount):
-        print("Moviendo hacia atrás:", amount)
+        """
+        Mueve al jugador hacia atrás en la dirección opuesta al enemigo o trampa después de una colisión.
+
+        RECIBE:
+        amount (int): Valor de desplazamiento hacia atrás.
+        """
         self.__move_x -= amount
 
     def __set_x_animations_preset(self, move_x: int, animation_list: list[pg.surface.Surface], look_r: bool):
@@ -202,31 +249,46 @@ class Jugador:
         
 
     def collition_enemy(self, enemies: list[Enemigo]):
+        """
+        Maneja la colisión con los enemigos, reduce los puntos de vida y realiza un retroceso.
+
+        RECIBE:
+        enemies (list[Enemigo]): Lista de objetos Enemigo.
+        """
         for enemy in enemies:
             if self.__rect.colliderect(enemy.get_rect):
-                print("¡Colisión con enemigo!")
+                print("¡Colision con enemigo!")
                 # Reducir puntos de vida
-                self.__life_points -= enemy.get_damage
+                self.reduce_life_points(enemy.get_damage)
                 print("Puntos de vida restantes:", self.__life_points)
 
                 # Empujar al jugador hacia atrás al recibir daño
-                self.__move_x += -enemy.get_push if self.__is_looking_right else enemy.get_push
+                self.move_back(enemy.get_push if self.__rect.x < enemy.get_rect.x else - enemy.get_push) 
                 self.__actual_animation = self.__die
                 break
     
+
     def collition_tramp(self, tramps: list[Tramp]):
-        
+        """
+        Maneja la colisión con las trampas, reduce los puntos de vida y realiza un retroceso.
+
+        RECIBE:
+        tramps (list[Tramp]): Lista de objetos Tramp.
+        """
         for tramp in tramps:
             if self.__rect.colliderect(tramp.get_rect):
-                print("Colision con la trampa. Aplicando daño.")
-                print("Posicion del jugador en x{0} en y{1}".format(self.__rect.x, self.__rect.y))
-                print("Posicion de la trampa en x{0} en y{1}".format(tramp.get_rect.x, tramp.get_rect.y))
+                print("Colision con la trampa. Aplicando danio.")
                 self.reduce_life_points(tramp.get_damage)
-                self.move_back(tramp.get_push)
+                self.move_back(tramp.get_push if self.__rect.x < tramp.get_rect.x else - tramp.get_push)
                 print("Puntos de vida restantes:", self.get_life_points)
-                print("Nueva posición del jugador:", self.__rect.x, self.__rect.y)
                           
     def collition_plataform(self, plataforms:list[Plataform]):
+        """
+        Maneja la colisión con las plataformas y ajusta la posición del jugador.
+
+        RECIBE:
+        plataforms (list[Plataform]): Lista de objetos Plataform.
+        """
         for plataform in plataforms:
             if self.__rect.colliderect(plataform.get_rect):
                 if self.__rect.bottom >= plataform.get_rect.top:
@@ -249,6 +311,14 @@ class Jugador:
             self.__move_x = 0
                   
     def collitions(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
+        """
+        Maneja todas las colisiones (plataformas, enemigos, trampas) del jugador.
+
+        RECIBE:
+        plataforms (list[Plataform]): Lista de objetos Plataform.
+        enemies (list[Enemigo]): Lista de objetos Enemigo.
+        tramps (list[Tramp]): Lista de objetos Tramp.
+        """
         self.collition_plataform(plataforms)
         self.collition_enemy(enemies)
         self.collition_tramp(tramps)  
@@ -256,7 +326,13 @@ class Jugador:
     def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         """
         Maneja el movimiento del jugador.
+
+        RECIBE:
+        plataforms (list[Plataform]): Lista de objetos Plataform.
+        enemies (list[Enemigo]): Lista de objetos Enemigo.
+        tramps (list[Tramp]): Lista de objetos Tramp.
         """
+
         self.__rect.x =+ self.__move_x
         self.__rect.y =+ self.__move_y
         self.__set_borders_limits()
@@ -316,9 +392,15 @@ class Jugador:
         if lista_teclas_presionadas[pg.K_UP]:
             self.jump()
 
-    def update(self,screen, plataformas: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
+    def update(self,screen: pg.surface.Surface, plataformas: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         """
         Actualiza el estado del jugador (movimiento y animación).
+
+        RECIBE:
+        screen (pg.surface.Surface): Superficie de la pantalla.
+        plataforms (list[Plataform]): Lista de objetos Plataform.
+        enemies (list[Enemigo]): Lista de objetos Enemigo.
+        tramps (list[Tramp]): Lista de objetos Tramp.
         """
         self.recharge()
         self.do_movement(plataformas, enemies, tramps)
@@ -328,7 +410,7 @@ class Jugador:
     
     def draw(self, screen: pg.surface.Surface):
         """
-        Dibuja al jugador en la pantalla.
+        Dibuja al jugador en la pantalla y la barra de vida.
 
         RECIBE:
         screen (pg.surface.Surface): Superficie de la pantalla.

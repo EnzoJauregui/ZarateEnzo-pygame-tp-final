@@ -2,6 +2,7 @@ import pygame as pg
 import random
 from models.platafroma import Plataform
 from models.constantes import GROUND_LEVEL, ANCHO_VENTANA, PUSH, DEBUG
+from models.bullet import Bullet
 from models.auxiliar import SurfaceManager as sf
 
 class Enemigo(pg.sprite.Sprite):
@@ -37,7 +38,12 @@ class Enemigo(pg.sprite.Sprite):
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
         self.__is_patrolling_right = False
+        self.__points = 50
 
+        self.__bullet_group = pg.sprite.Group()
+        self.__bullet_ready = True
+        self.__bullet_time = 0
+        self.__bullet_cooldown = 1000  # Ajusta el tiempo de espera entre disparos
 
     @property
     def get_rect(self) -> int:
@@ -68,11 +74,60 @@ class Enemigo(pg.sprite.Sprite):
         self.__push (int): valor del dicho atributo.
         """
         return self.__push
+    
+    @property
+    def get_points(self) -> int:
+        """
+        Devuelve el valor del atributo privado 'self.__points'
+
+        DEVUELVE:
+        self.__points (int): valor del dicho atributo.
+        """
+        return self.__points
+    
+    @property
+    def get_bullets(self) -> list[Bullet]:
+        return self.__bullet_group
+
+    def bullet_shoot(self):
+        if self.__bullet_ready:
+            print('Enemigo dispara')
+            self.__bullet_group.add(self.create_bullet())
+            self.__bullet_ready = False
+            self.__bullet_time = pg.time.get_ticks()
+
+    def create_bullet(self):
+        return Bullet(self.__rect.centerx, self.__rect.centery, not self.__is_looking_right, True)
+
+    def recharge(self):
+        if not self.__bullet_ready:
+            current_time = pg.time.get_ticks()
+            if current_time - self.__bullet_time >= self.__bullet_cooldown:
+                self.__bullet_ready = True
+    
+    def check_bullet_collision(self, bullets: pg.sprite.Group):
+        for bullet in bullets:
+            if self.__rect.colliderect(bullet.rect):
+                print("le di")
+                
+                break
 
     def set_x_animations(self, move_x: int, animation: list, look_r:bool):
         self.__move_x += move_x
         self.__actual_animation = animation
         self.__is_looking_right = look_r
+
+    def applty_gravity(self):
+        if (self.__move_y < GROUND_LEVEL) and not self.__plataform_colition:
+            self.__move_y -= self.__gravity
+            self.__gravity -= 1
+            self.__actual_animation = self.__fall_r if self.__is_looking_right else self.__fall_l
+
+            if self.__move_y >= GROUND_LEVEL:
+                self.__is_on_ground = True
+                self.__move_y = GROUND_LEVEL
+                self.__gravity = 0
+                self.__is_patrolling_right = True
 
     def collition_plataform(self, plataforms:list[Plataform]):
         for plataform in plataforms:
@@ -82,9 +137,7 @@ class Enemigo(pg.sprite.Sprite):
                     self.__limit_r = plataform.get_rect.x + plataform.get_rect.w
                     self.__limit_l = plataform.get_rect.x
                     self.__plataform_colition = True
-                    self.__is_on_ground = True
-                    self.__gravity = 0
-                    
+
                     break
             else:
                 self.__plataform_colition = False
@@ -100,7 +153,7 @@ class Enemigo(pg.sprite.Sprite):
             self.__is_patrolling_right = False
             
     def auto_move(self):
-        if self.__is_on_ground or self.__plataform_colition:
+        if self.__rect.y >= GROUND_LEVEL or self.__plataform_colition:
             if self.__is_patrolling_right:
                 look_r = False
                 self.set_x_animations(self.__speed_walk, self.__walk_l, look_r)
@@ -117,24 +170,13 @@ class Enemigo(pg.sprite.Sprite):
         if self.__collite_top:
             pass
 
-    def applty_gravity(self):
-        if (self.__move_y < GROUND_LEVEL) and not self.__plataform_colition:
-            self.__move_y -= self.__gravity
-            self.__gravity -= 1
-            self.__actual_animation = self.__fall_r if self.__is_looking_right else self.__fall_l
-
-            if self.__move_y >= GROUND_LEVEL:
-                self.__is_on_ground = True
-                self.__move_y = GROUND_LEVEL
-                self.__gravity = 0
-                self.__is_patrolling_right = True
 
     def do_movement(self,plataforms: list[Plataform]):
+        self.__rect.x = self.__move_x
+        self.__rect.y = self.__move_y
         self.applty_gravity()
         self.collition_plataform(plataforms)
         self.auto_move()
-        self.__rect.x = self.__move_x
-        self.__rect.y = self.__move_y
 
     def do_animation(self):
         if not self.__is_on_ground:
@@ -154,6 +196,8 @@ class Enemigo(pg.sprite.Sprite):
         """
         self.do_movement(plataforms)
         self.do_animation()
+        self.__bullet_group.update()
+        self.recharge()
 
     def draw(self, screen: pg.surface.Surface):
         """
@@ -163,6 +207,7 @@ class Enemigo(pg.sprite.Sprite):
             screen (pg.surface.Surface): Superficie de la pantalla.
         """
         screen.blit(self.__actual_animation[self.__initial_frame], self.__rect)
+        self.__bullet_group.draw(screen)
 
         if DEBUG:
             pg.draw.rect(screen, "Blue", self.__rect)

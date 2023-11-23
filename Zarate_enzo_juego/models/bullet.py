@@ -1,7 +1,5 @@
 import pygame as pg
 from models.constantes import DEBUG, ANCHO_VENTANA
-from models.player.main_enemy import Enemigo
-
 
 class Bullet(pg.sprite.Sprite):
     def __init__(self, x, y, direction, img_path = False):
@@ -10,7 +8,7 @@ class Bullet(pg.sprite.Sprite):
         
         self.__rect = self.image.get_rect(center=(x, y))
         self.__direction = direction
-        self.__speed = 2
+        self.__speed = 5
         self.__alive = True
         self.__damage = 2
 
@@ -28,24 +26,20 @@ class Bullet(pg.sprite.Sprite):
         else: 
             self.image = pg.Surface((4, 20))
             self.image.fill('Black')
+    
+    def check_collision(self, target: object):
+        """
+        Verifica si la bala ha colisionado con el objetivo.
 
-    def handle_collision(self, player, enemies: Enemigo):
-        # Verificar colisión con el jugador
-        if self.__rect.colliderect(player.get_rect):
-            # Realizar acciones cuando hay colisión con el jugador
-            player.reduce_life_points(self.__damage)
-            self.__alive = False
-
-        # Verificar colisión con los enemigos
-        for enemy in enemies:
-            if self.__rect.colliderect(enemy.get_rect):
-                # Realizar acciones cuando hay colisión con un enemigo
-                enemy.kill()
-                self.__alive = False
-                break
+        RECIBE:
+        target: Objeto (Jugador o Enemigo) con el que se verifica la colisión.
+        """
+        return self.rect.colliderect(target.get_rect)
 
     def update(self):
         self.__rect.x += self.__speed if self.__direction else -self.__speed
 
         if 0 >= self.__rect.x <= ANCHO_VENTANA:
             self.kill()
+
+       
