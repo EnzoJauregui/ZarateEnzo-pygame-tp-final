@@ -19,7 +19,6 @@ class Fruit(pg.sprite.Sprite):
         self.__points = False
         self.update_time = pg.time.get_ticks()
         
-
     @property
     def get_rect(self):
         return self.__rect

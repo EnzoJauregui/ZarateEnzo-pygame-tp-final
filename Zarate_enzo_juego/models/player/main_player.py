@@ -9,7 +9,7 @@ from models.Fruits import Fruit
 
 
 
-class Jugador:
+class Jugador(pg.sprite.Sprite):
     def __init__(self, coord_x, coord_y,w ,h ,frame_rate = 200, speed_walk = 3, speed_run = 6):
         self.__iddle_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h), flip=True)
         self.__iddle_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h))
@@ -17,8 +17,8 @@ class Jugador:
         self.__walk_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\walk\0.png', 3, 1,(w,h))
         self.__run_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\run\0.png', 3, 1,(w,h), flip=True)
         self.__run_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\run\0.png', 3, 1,(w,h))
-        self.atack_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 1, 1,(w,h), flip=True)
-        self.atack_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 1, 1,(w,h))
+        self.__shoot_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 1, 1,(w,h), flip=True)
+        self.__shoot_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 1, 1,(w,h))
         self.__jump_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY), flip=True)
         self.__jump_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY))
         self.__die = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\die\0.png', 11, 1,(w,h)) 
@@ -30,7 +30,6 @@ class Jugador:
         self.__is_looking_right = True
         
         self.__gravity = -1
-        
         self.__jump = 15
         self.__is_jumping = False
         self.__star_jump = False
@@ -42,16 +41,18 @@ class Jugador:
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
 
-        self._plataform_colition = False
-        self._grund_collition_rect = pg.Rect(self.__rect.x, self.__rect.y+self.__rect.h-10, self.__rect.w, 2)
+        self.__plataform_colition = False
         self.__life_points = LIFE_POINTS
         self.counter = 1000
 
+        self.__is_shooting = False
         self.__bullet_ready = True
         self.__bullet_time = 0
         self.__bullet_group = pg.sprite.Group()
         self.__bullet_cooldown = 500
         self.__points = 0
+
+        self.__is_dead = False
     
     @property
     def get_rect(self) -> pg.Rect:
@@ -94,14 +95,12 @@ class Jugador:
         return self.__bullet_group
     
     def bullet_shoot(self):
-        """
-        Dispara una bala desde la posición del jugador.
-        """
         if self.__bullet_ready:
-           
+            self.__is_shooting = True
             self.__bullet_group.add(self.create_bullet())
             self.__bullet_ready = False
             self.__bullet_time = pg.time.get_ticks()
+            
     
     def create_bullet(self) -> Bullet:
         """
@@ -131,7 +130,7 @@ class Jugador:
         for bullet in bullets:
             if self.__rect.colliderect(bullet.rect):
                 print("me dio")
-                
+                bullet.kill()
                 break
 
     def reduce_life_points(self, damage: int):
@@ -228,13 +227,13 @@ class Jugador:
         if not self.__is_jumping: 
             self.__gravity = self.__jump
             self.__is_jumping = True
-            self._plataform_colition = False
+            self.__plataform_colition = False
     
     def applty_gravity(self):
         """
         Aplica la gravedad al movimiento en 'y' del jugador.
         """
-        if (self.__is_jumping or self.__move_y < GROUND_LEVEL) and not self._plataform_colition:
+        if (self.__is_jumping or self.__move_y < GROUND_LEVEL) and not self.__plataform_colition:
             self.__move_y -= self.__gravity
             self.__gravity-= 1
             self.__actual_animation = self.__jump_r if self.__is_looking_right else self.__jump_l
@@ -247,7 +246,6 @@ class Jugador:
                 self.__is_jumping = False
                 self.__gravity = 0
         
-
     def collition_enemy(self, enemies: list[Enemigo]):
         """
         Maneja la colisión con los enemigos, reduce los puntos de vida y realiza un retroceso.
@@ -261,13 +259,12 @@ class Jugador:
                 # Reducir puntos de vida
                 self.reduce_life_points(enemy.get_damage)
                 print("Puntos de vida restantes:", self.__life_points)
-
+                self.__actual_animation = self.__die
                 # Empujar al jugador hacia atrás al recibir daño
                 self.move_back(enemy.get_push if self.__rect.x < enemy.get_rect.x else - enemy.get_push) 
                 self.__actual_animation = self.__die
                 break
     
-
     def collition_tramp(self, tramps: list[Tramp]):
         """
         Maneja la colisión con las trampas, reduce los puntos de vida y realiza un retroceso.
@@ -279,6 +276,7 @@ class Jugador:
             if self.__rect.colliderect(tramp.get_rect):
                 print("Colision con la trampa. Aplicando danio.")
                 self.reduce_life_points(tramp.get_damage)
+                self.__actual_animation = self.__die
                 self.move_back(tramp.get_push if self.__rect.x < tramp.get_rect.x else - tramp.get_push)
                 print("Puntos de vida restantes:", self.get_life_points)
                           
@@ -294,11 +292,11 @@ class Jugador:
                 if self.__rect.bottom >= plataform.get_rect.top:
                     self.__rect.bottom = plataform.get_rect.top
                     self.__is_jumping = False
-                    self._plataform_colition = True
+                    self.__plataform_colition = True
                     self.__gravity = 0
                     break
             else:
-                self._plataform_colition = False
+                self.__plataform_colition = False
 
     def __set_borders_limits(self):
         """
@@ -323,37 +321,6 @@ class Jugador:
         self.collition_enemy(enemies)
         self.collition_tramp(tramps)  
 
-    def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
-        """
-        Maneja el movimiento del jugador.
-
-        RECIBE:
-        plataforms (list[Plataform]): Lista de objetos Plataform.
-        enemies (list[Enemigo]): Lista de objetos Enemigo.
-        tramps (list[Tramp]): Lista de objetos Tramp.
-        """
-
-        self.__rect.x =+ self.__move_x
-        self.__rect.y =+ self.__move_y
-        self.__set_borders_limits()
-        self.applty_gravity()
-        self.collitions(plataforms, enemies, tramps)
-           
-    def do_animation(self):
-        """
-        Controla las acciones del jugador según las teclas presionadas.
-        """
-        if self.__initial_frame >= len(self.__actual_animation) - 1:
-            self.__initial_frame = 0
-
-        if not self.__star_jump:
-            self.__actual_img_animation = self.__jump_r[0] if self.__is_looking_right else self.__jump_l[0]
-        else:
-            self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
-            
-        if pg.time.get_ticks() - self.update_time >= self.__frame_rate:
-            self.__initial_frame += 1
-            self.update_time = pg.time.get_ticks()
 
     def control_keys(self):
         """
@@ -385,12 +352,47 @@ class Jugador:
         
         if lista_teclas_presionadas[pg.K_x] and self.__bullet_ready:
             self.bullet_shoot()
-            self.__bullet_ready = False
-            self.bullet_time = pg.time.get_ticks()
-            print("shot")
+            
+        elif self.__is_shooting:
+            self.__is_shooting = False
+            self.stay()
 
         if lista_teclas_presionadas[pg.K_UP]:
             self.jump()
+
+    def do_movement(self, plataforms: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
+        """
+        Maneja el movimiento del jugador.
+
+        RECIBE:
+        plataforms (list[Plataform]): Lista de objetos Plataform.
+        enemies (list[Enemigo]): Lista de objetos Enemigo.
+        tramps (list[Tramp]): Lista de objetos Tramp.
+        """
+        self.__rect.x =+ self.__move_x
+        self.__rect.y =+ self.__move_y
+        self.__set_borders_limits()
+        self.applty_gravity()
+        self.collitions(plataforms, enemies, tramps)
+           
+    def do_animation(self):
+        """
+        Controla las acciones del jugador según las teclas presionadas.
+        """
+        if self.__initial_frame >= len(self.__actual_animation) - 1:
+            self.__initial_frame = 0
+
+        if self.__is_shooting:
+            self.__actual_animation = self.__shoot_r if self.__is_looking_right else self.__shoot_l
+        elif not self.__star_jump and not self.__plataform_colition:
+            self.__actual_img_animation = self.__jump_r[0] if self.__is_looking_right else self.__jump_l[0]
+        else:
+            self.__actual_animation = self.__actual_animation
+            self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
+            
+        if pg.time.get_ticks() - self.update_time >= self.__frame_rate:
+            self.__initial_frame += 1
+            self.update_time = pg.time.get_ticks()
 
     def update(self,screen: pg.surface.Surface, plataformas: list[Plataform], enemies: list[Enemigo], tramps:list[Tramp]):
         """

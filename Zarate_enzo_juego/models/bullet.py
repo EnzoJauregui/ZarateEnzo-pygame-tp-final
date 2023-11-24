@@ -26,15 +26,7 @@ class Bullet(pg.sprite.Sprite):
         else: 
             self.image = pg.Surface((4, 20))
             self.image.fill('Black')
-    
-    def check_collision(self, target: object):
-        """
-        Verifica si la bala ha colisionado con el objetivo.
 
-        RECIBE:
-        target: Objeto (Jugador o Enemigo) con el que se verifica la colisión.
-        """
-        return self.rect.colliderect(target.get_rect)
 
     def update(self):
         self.__rect.x += self.__speed if self.__direction else -self.__speed

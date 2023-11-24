@@ -11,39 +11,34 @@ class Enemigo(pg.sprite.Sprite):
 
         self.__walk_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\walk.png', 3, 1,(w,h))
         self.__walk_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\walk.png', 3, 1,(w,h), flip=True)
-        self.__die_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\die.png', 9, 1,(w,h))
-        self.__die_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\die.png', 9, 1,(w,h), flip=True)
-        self.__attack_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\atak.png', 3, 1,(w,h))
-        self.__attack_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\atak.png', 3, 1,(w,h), flip=True)
         self.__fall_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\fall.png', 1, 1,(w,h))
         self.__fall_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\fall.png', 1, 1,(w,h), flip=True)
 
         self.__move_x = coord_x
         self.__move_y = coord_y
         self.__speed_walk = speed_walk
-        self.__speed_atak = self.__speed_walk*1.5
         self.__is_looking_right = True
-        self.__plataform_colition = False
-        self.__gravity = -1
-        self.__is_on_ground = False
-        self.__damage = damage
-        self.__push = PUSH
+        self.__is_patrolling_right = False
 
-        self.__collite_top = False
+        self.__gravity = -1
+        self.__plataform_colition = False
+        self.__is_on_ground = False
+
         self.__frame_rate = frame_rate
         self.update_time = pg.time.get_ticks()
-
         self.__initial_frame = 0
         self.__actual_animation = self.__walk_l
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
-        self.__is_patrolling_right = False
+        
         self.__points = 50
-
+        self.__push = PUSH
+        self.__damage = damage
         self.__bullet_group = pg.sprite.Group()
         self.__bullet_ready = True
         self.__bullet_time = 0
-        self.__bullet_cooldown = 1000  # Ajusta el tiempo de espera entre disparos
+        self.__bullet_cooldown = 2000  # Ajusta el tiempo de espera entre disparos
+        self.__dead = False
 
     @property
     def get_rect(self) -> int:
@@ -89,12 +84,23 @@ class Enemigo(pg.sprite.Sprite):
     def get_bullets(self) -> list[Bullet]:
         return self.__bullet_group
 
+    @property
+    def dead(self) -> bool:
+        """
+        Devuelve el valor del atributo privado 'self.__dead'
+
+        DEVUELVE:
+        self.__dead (int): valor del dicho atributo.
+        """
+        return self.__dead
+    
     def bullet_shoot(self):
-        if self.__bullet_ready:
-            print('Enemigo dispara')
-            self.__bullet_group.add(self.create_bullet())
-            self.__bullet_ready = False
-            self.__bullet_time = pg.time.get_ticks()
+        if self.__is_on_ground or self.__plataform_colition:
+            if self.__bullet_ready:
+                print('Enemigo dispara')
+                self.__bullet_group.add(self.create_bullet())
+                self.__bullet_ready = False
+                self.__bullet_time = pg.time.get_ticks()
 
     def create_bullet(self):
         return Bullet(self.__rect.centerx, self.__rect.centery, not self.__is_looking_right, True)
@@ -109,7 +115,8 @@ class Enemigo(pg.sprite.Sprite):
         for bullet in bullets:
             if self.__rect.colliderect(bullet.rect):
                 print("le di")
-                
+                self.__dead = True
+                bullet.kill()
                 break
 
     def set_x_animations(self, move_x: int, animation: list, look_r:bool):
@@ -137,7 +144,6 @@ class Enemigo(pg.sprite.Sprite):
                     self.__limit_r = plataform.get_rect.x + plataform.get_rect.w
                     self.__limit_l = plataform.get_rect.x
                     self.__plataform_colition = True
-
                     break
             else:
                 self.__plataform_colition = False
@@ -166,11 +172,6 @@ class Enemigo(pg.sprite.Sprite):
             else:
                 self.limit_patrol(0, ANCHO_VENTANA - self.__rect.width)
             
-    def death(self):
-        if self.__collite_top:
-            pass
-
-
     def do_movement(self,plataforms: list[Plataform]):
         self.__rect.x = self.__move_x
         self.__rect.y = self.__move_y
@@ -179,16 +180,15 @@ class Enemigo(pg.sprite.Sprite):
         self.auto_move()
 
     def do_animation(self):
-        if not self.__is_on_ground:
+        if not self.__is_on_ground and not self.__plataform_colition:
             self.__actual_img_animation = self.__fall_r if self.__is_looking_right else self.__fall_l
         else:
-            self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
-
             if pg.time.get_ticks() - self.update_time >= self.__frame_rate:
                 self.__initial_frame += 1
                 if self.__initial_frame >= len(self.__actual_animation):
                     self.__initial_frame = 0
                 self.update_time = pg.time.get_ticks()
+            self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
 
     def update(self,plataforms: list[Plataform]):
         """

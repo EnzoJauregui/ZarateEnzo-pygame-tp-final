@@ -13,7 +13,6 @@ class Plataform:
     @property
     def get_rect(self):
         return self.__rect
-
    
     def draw(self, screen:pg.Surface):
             

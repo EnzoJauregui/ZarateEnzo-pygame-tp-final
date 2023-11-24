@@ -12,7 +12,7 @@ PLATAFORM_LIMIT = 300
 HEIGHT_RECT = 3
 LIFE_POINTS = 50
 PUSH = 50
-CANTIDAD = 4
+CANTIDAD = 9
 
 def open_config() -> dict:
     """
