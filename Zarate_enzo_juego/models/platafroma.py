@@ -1,9 +1,9 @@
 import pygame as pg
-from models.constantes import DEBUG, HEIGHT_RECT
-from models.auxiliar import SurfaceManager as sf
+from models.constantes import DEBUG
 
 class Plataform:
     def __init__(self, x, y, w, h,numb):
+        
         self.__image = pg.image.load(r'Zarate_enzo_juego\recursos\plataforms\dos\{0}.png'.format(numb)).convert_alpha()
         self.__image = pg.transform.scale(self.__image, (w, h))
         self.__rect = self.__image.get_rect()
@@ -12,11 +12,23 @@ class Plataform:
        
     @property
     def get_rect(self):
+        """
+        Obtiene el rectángulo asociado a la plataforma.
+
+        DEVUELVE:
+        pg.Rect: Rectángulo de la plataforma.
+        """
         return self.__rect
    
     def draw(self, screen:pg.Surface):
-            
-        screen.blit(self.__image, self.__rect)
+        """
+        Dibuja la plataforma en la pantalla.
+
+        RECIBE:
+        screen (pg.Surface): Superficie de la pantalla.
+        """
         if DEBUG:
             pg.draw.rect(screen, 'red', self.__rect)
+            
+        screen.blit(self.__image, self.__rect)
        

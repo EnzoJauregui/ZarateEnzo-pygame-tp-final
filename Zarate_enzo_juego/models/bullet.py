@@ -14,13 +14,31 @@ class Bullet(pg.sprite.Sprite):
 
     @property
     def rect(self):
+        """
+        Devuelve el rectángulo asociado a la bala.
+
+        DEVUELVE:
+        pg.Rect: Rectángulo de la bala.
+        """
         return self.__rect
     
     @property
     def is_alive(self):
+        """
+        Indica si la bala está activa.
+
+        DEVUELVE:
+        bool: True si la bala está activa, False de lo contrario.
+        """
         return self.__alive
     
     def __load_img(self, img_path: bool):
+        """
+        Carga la imagen de la bala.
+
+        RECIBE:
+        img_path (bool): Ruta de la imagen de la bala (opcional, predeterminado a False).
+        """
         if img_path:
             self.image = pg.image.load(r'Zarate_enzo_juego\recursos\bullet\1.png')
         else: 
@@ -29,6 +47,9 @@ class Bullet(pg.sprite.Sprite):
 
 
     def update(self):
+        """
+        Actualiza la posición de la bala y verifica si ha salido de la pantalla.
+        """
         self.__rect.x += self.__speed if self.__direction else -self.__speed
 
         if 0 >= self.__rect.x <= ANCHO_VENTANA:

@@ -43,58 +43,67 @@ class Enemigo(pg.sprite.Sprite):
     @property
     def get_rect(self) -> int:
         """
-        Devuelve el valor del atributo privado 'self.__rect'
+        Devuelve el rectángulo asociado al enemigo.
 
         DEVUELVE:
-        self.__rect (int): valor del dicho atributo.
+        pg.Rect: Rectángulo del enemigo.
         """
         return self.__rect
 
     @property
     def get_damage(self) -> int:
         """
-        Devuelve el valor del atributo privado 'self.__damage'
+        Devuelve la cantidad de daño infligido por el enemigo.
 
         DEVUELVE:
-        self.__damage (int): valor del dicho atributo.
+        int: Daño infligido por el enemigo.
         """
         return self.__damage
 
     @property
     def get_push(self) -> int:
         """
-        Devuelve el valor del atributo privado 'self.__push'
+        Devuelve la cantidad de fuerza de empuje del enemigo.
 
         DEVUELVE:
-        self.__push (int): valor del dicho atributo.
+        int: Fuerza de empuje del enemigo.
         """
         return self.__push
     
     @property
     def get_points(self) -> int:
         """
-        Devuelve el valor del atributo privado 'self.__points'
+        Devuelve la cantidad de puntos otorgados al derrotar al enemigo.
 
         DEVUELVE:
-        self.__points (int): valor del dicho atributo.
+        int: Puntos otorgados al derrotar al enemigo.
         """
         return self.__points
     
     @property
     def get_bullets(self) -> list[Bullet]:
+        """
+        Devuelve la lista de balas disparadas por el enemigo.
+
+        DEVUELVE:
+        list[Bullet]: Lista de balas disparadas por el enemigo.
+        """
         return self.__bullet_group
 
     @property
     def dead(self) -> bool:
         """
-        Devuelve el valor del atributo privado 'self.__dead'
+        Indica si el enemigo ha sido derrotado.
 
         DEVUELVE:
-        self.__dead (int): valor del dicho atributo.
+        bool: True si el enemigo ha sido derrotado, False de lo contrario.
         """
         return self.__dead
     
     def bullet_shoot(self):
+        """
+        Realiza el disparo de una bala por parte del enemigo.
+        """
         if self.__is_on_ground or self.__plataform_colition:
             if self.__bullet_ready:
                 print('Enemigo dispara')
@@ -103,15 +112,30 @@ class Enemigo(pg.sprite.Sprite):
                 self.__bullet_time = pg.time.get_ticks()
 
     def create_bullet(self):
+        """
+        Crea una instancia de la clase Bullet, representando una bala disparada por el enemigo.
+
+        DEVUEVE:
+        Bullet: Instancia de la clase Bullet.
+        """
         return Bullet(self.__rect.centerx, self.__rect.centery, not self.__is_looking_right, True)
 
     def recharge(self):
+        """
+        Recarga el tiempo de espera entre disparos del enemigo.
+        """
         if not self.__bullet_ready:
             current_time = pg.time.get_ticks()
             if current_time - self.__bullet_time >= self.__bullet_cooldown:
                 self.__bullet_ready = True
     
     def check_bullet_collision(self, bullets: pg.sprite.Group):
+        """
+        Verifica si el enemigo ha colisionado con alguna bala disparada por el jugador.
+
+        RECIBE:
+        bullets (pg.sprite.Group): Grupo de balas disparadas por el jugador.
+        """
         for bullet in bullets:
             if self.__rect.colliderect(bullet.rect):
                 print("le di")
@@ -120,11 +144,22 @@ class Enemigo(pg.sprite.Sprite):
                 break
 
     def set_x_animations(self, move_x: int, animation: list, look_r:bool):
+        """
+        Establece la animación y dirección del enemigo al moverse horizontalmente.
+
+        RECIBE:
+        move_x (int): Desplazamiento horizontal del enemigo.
+        animation (list): Lista de imágenes que representan la animación del enemigo.
+        look_r (bool): True si el enemigo mira a la derecha, False de lo contrario.
+        """
         self.__move_x += move_x
         self.__actual_animation = animation
         self.__is_looking_right = look_r
 
     def applty_gravity(self):
+        """
+        Aplica la gravedad al enemigo si no está en el suelo o en una plataforma.
+        """
         if (self.__move_y < GROUND_LEVEL) and not self.__plataform_colition:
             self.__move_y -= self.__gravity
             self.__gravity -= 1
@@ -137,6 +172,12 @@ class Enemigo(pg.sprite.Sprite):
                 self.__is_patrolling_right = True
 
     def collition_plataform(self, plataforms:list[Plataform]):
+        """
+        Verifica la colisión del enemigo con las plataformas.
+
+        RECIBE:
+        plataforms (list[Plataform]): Lista de plataformas en el juego.
+        """
         for plataform in plataforms:
             if self.__rect.colliderect(plataform.get_rect):
                 if self.__rect.bottom >= plataform.get_rect.top:
@@ -149,7 +190,13 @@ class Enemigo(pg.sprite.Sprite):
                 self.__plataform_colition = False
 
     def limit_patrol(self, limit_l: int, limit_r: int):
+        """
+        Limita el patrullaje del enemigo dentro de ciertos límites horizontales.
 
+        RECIBE:
+        limit_l (int): Límite izquierdo del patrullaje.
+        limit_r (int): Límite derecho del patrullaje.
+        """
         if self.__rect.x <= limit_l:
             self.__rect.x = limit_l  # Ajusta la posición al límite izquierdo
             self.__is_patrolling_right = True
@@ -159,6 +206,9 @@ class Enemigo(pg.sprite.Sprite):
             self.__is_patrolling_right = False
             
     def auto_move(self):
+        """
+        Realiza el movimiento automático del enemigo en el juego.
+        """
         if self.__rect.y >= GROUND_LEVEL or self.__plataform_colition:
             if self.__is_patrolling_right:
                 look_r = False
@@ -173,6 +223,12 @@ class Enemigo(pg.sprite.Sprite):
                 self.limit_patrol(0, ANCHO_VENTANA - self.__rect.width)
             
     def do_movement(self,plataforms: list[Plataform]):
+        """
+        Realiza el movimiento del enemigo y verifica colisiones con plataformas.
+
+        RECIBE:
+        plataforms (list[Plataform]): Lista de plataformas en el juego.
+        """
         self.__rect.x = self.__move_x
         self.__rect.y = self.__move_y
         self.applty_gravity()
@@ -180,6 +236,9 @@ class Enemigo(pg.sprite.Sprite):
         self.auto_move()
 
     def do_animation(self):
+        """
+        Realiza la animación del enemigo.
+        """
         if not self.__is_on_ground and not self.__plataform_colition:
             self.__actual_img_animation = self.__fall_r if self.__is_looking_right else self.__fall_l
         else:
@@ -193,6 +252,9 @@ class Enemigo(pg.sprite.Sprite):
     def update(self,plataforms: list[Plataform]):
         """
         Actualiza el estado del enemigo.
+
+        RECIBE:
+        plataforms (list[Plataform]): Lista de plataformas en el juego.
         """
         self.do_movement(plataforms)
         self.do_animation()
@@ -214,12 +276,24 @@ class Enemigo(pg.sprite.Sprite):
 
     @staticmethod
     def generate_enemies(num_enemies):
+        """
+        Genera una lista de enemigos de forma aleatoria.
+
+        RECIBE:
+        num_enemies (int): Número de enemigos a generar.
+
+        DEVUELVE:
+        list: Lista de objetos Enemigo generados.
+        """
         enemies = []
+        
         for _ in range(num_enemies):
-            x = random.randint(50, ANCHO_VENTANA-40)
+            x = random.randint(100, ANCHO_VENTANA-40)
             y = 0
             speed_walk = random.uniform(1, 5)
             damage = random.randint(1, 3)
+
             enemy = Enemigo(x, y, 40, 40, speed_walk, damage)
             enemies.append(enemy)
+
         return enemies

@@ -24,10 +24,10 @@ class Tramp:
     @property
     def get_rect(self) -> int:
         """
-        Devuelve el valor del atributo privado 'self.__rect'
-        
-        DEVUELVE:
-        self.__rect (int): valor del dicho atributo.
+        Devuelve el rectángulo asociado a la trampa.
+
+        REVUELVE:
+        pg.Rect: Rectángulo de la trampa.
         """
         return self.__rect
 
@@ -35,25 +35,28 @@ class Tramp:
     @property
     def get_damage(self) -> int:
         """
-        Devuelve el valor del atributo privado 'self.__damage'
-        
+        Devuelve el valor del atributo privado 'self.__damage'.
+
         DEVUELVE:
-        self.__damage (int): valor del dicho atributo.
+        int: Valor del daño infligido por la trampa.
         """
         return self.__damage
     
     @property
     def get_push(self) -> int:
         """
-        Devuelve el valor del atributo privado 'self.__push'
-        
+        Devuelve el valor del atributo privado 'self.__push'.
+
         DEVUELVE:
-        self.__push (int): valor del dicho atributo.
+        int: Valor de la fuerza de empuje de la trampa.
         """
         return self.__push
     
 
     def move(self):
+        """
+        Mueve la trampa horizontalmente y la reposiciona cuando sale de la pantalla.
+        """
         self.__move_x -= self.__speed
         if self.__move_x + self.__rect.width < 0:
             self.__move_y += 50
@@ -62,7 +65,9 @@ class Tramp:
             self.__move_x = ANCHO_VENTANA
 
     def do_animation(self):
-
+        """
+        Realiza la animación de la trampa.
+        """
         if self.__initial_frame > len(self.__tramp_animation)-1:
             self.__initial_frame = 0
 
@@ -73,12 +78,21 @@ class Tramp:
             self.update_time = pg.time.get_ticks()
 
     def update(self):
+        """
+        Actualiza la posición y la animación de la trampa.
+        """
         self.__rect.x = self.__move_x
         self.__rect.y = self.__move_y
         self.move()
         self.do_animation()
 
     def draw(self, screen:pg.Surface):
+        """
+        Dibuja la trampa en la pantalla.
+
+        RECIBE:
+        screen (pg.Surface): Superficie de la pantalla.
+        """
         if DEBUG:
             pg.draw.rect(self.__actual_img_animation, "Blue", self.__rect)
             
@@ -86,10 +100,22 @@ class Tramp:
 
     @staticmethod
     def generate_tramps(num_tramps):
+        """
+        Genera una lista de trampas aleatorias.
+
+        RECIBE:
+        num_tramps (int): Número de trampas a generar.
+
+        DEVUELVE:
+        list[Tramp]: Lista de objetos Tramp generados.
+        """
         tramps = []
+        
         for _ in range(num_tramps):
             x = ANCHO_VENTANA - 50
             y = random.randint(0, 650)
+
             tramp = Tramp(x, y, 50, 50)  # Ajusta los parámetros según sea necesario
             tramps.append(tramp)
+
         return tramps
