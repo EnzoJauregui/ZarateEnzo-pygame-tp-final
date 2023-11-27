@@ -1,16 +1,32 @@
 import pygame as pg
+from auxiliar.constantes import open_config, ANCHO_VENTANA, ALTO_VENTANA
 from models.player.main_player import Jugador
+from models.player.main_enemy import Enemigo
+from models.tramps import Tramp
+from models.Fruits import Fruit
 
 class Game:
-    def __init__(self, screen: pg.Surface, list_plataforms, list_enemies, list_tramps, list_fruits, back_image):
+    def __init__(self, screen: pg.Surface, list_plataforms,stage):
+        self.__configs = open_config()[stage]
 
         self.__screen = screen
+        self.__back_image = pg.image.load(self.__configs["background"])
+        self.__back_image = pg.transform.scale(self.__back_image, (ANCHO_VENTANA, ALTO_VENTANA))
         self.__player = Jugador(0, 0, 30, 30)
         self.__plataforms = list_plataforms
-        self.__emenies = list_enemies
-        self.__tramps = list_tramps
-        self.__fruits = list_fruits
-        self.__back_image = back_image
+        self.__emenies = Enemigo.generate_enemies(self.__configs["max_enemies"], 
+                                                  self.__configs["max_enemy_damage"], 
+                                                  self.__configs["max_enemy_speed"])
+        
+        self.__tramps = Tramp.generate_tramps(self.__configs["max_tramps"], 
+                                              self.__configs["max_tramps_speed"], 
+                                              self.__configs["max_tramps_damage"])
+        
+        self.__fruits = Fruit.generate_fruits(self.__configs["max_fruits"],
+                                              self.__configs["min_life"],
+                                              self.__configs["max_life"],
+                                              self.__configs["min_points"],
+                                              self.__configs["max_points"])
     
     @property
     def get_player(self):
@@ -105,6 +121,3 @@ class Game:
         self.action_tramps()
         self.action_fruits()
         self.action_player()
-
-
-

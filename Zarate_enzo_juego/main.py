@@ -1,18 +1,12 @@
 import pygame as pg
-from models.constantes import ALTO_VENTANA, ANCHO_VENTANA, FPS, CANTIDAD
-from models.player.main_enemy import Enemigo
+from auxiliar.constantes import ALTO_VENTANA, ANCHO_VENTANA, FPS
+
 from models.platafroma import Plataform
-from models.tramps import Tramp
-from models.Fruits import Fruit
 from models.game import Game
 
 pg.init()
 
 screen = pg.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
-
-
-back_img = pg.image.load(r'Zarate_enzo_juego\recursos\fondo.jpg')
-back_img = pg.transform.scale(back_img, (ANCHO_VENTANA, ALTO_VENTANA))
 
 # Creación de plataformas
 list_plataforms = []
@@ -23,23 +17,9 @@ list_plataforms.append(Plataform(650, 380, 150, 30, 5))
 list_plataforms.append(Plataform(0, 300, 150, 30, 5))
 list_plataforms.append(Plataform(ANCHO_VENTANA - 150, 300, 150, 30, 5))
 
-list_enemies = []
-num_enemies_to_generate = CANTIDAD
-nuevos_enemigos = Enemigo.generate_enemies(num_enemies_to_generate)
-list_enemies.extend(nuevos_enemigos)
-
-list_tramps = []
-num_tramps_to_generate = CANTIDAD
-nuevas_trampas = Tramp.generate_tramps(num_tramps_to_generate)
-list_tramps.extend(nuevas_trampas)
-
-list_fruits = []
-
-num_fruits_to_generate = CANTIDAD
-nuevas_frutas = Fruit.generate_fruits(num_fruits_to_generate)
-list_fruits.extend(nuevas_frutas)
-
-game = Game(screen, list_plataforms, list_enemies, list_tramps, list_fruits, back_img)
+game = Game(screen, list_plataforms, "stage_uno")
+game = Game(screen, list_plataforms, "stage_dos")
+game = Game(screen, list_plataforms, "stage_tres")
 
 max_time_seg = 60
 

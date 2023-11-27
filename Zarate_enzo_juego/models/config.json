@@ -1,0 +1,85 @@
+{
+    "game":
+    {
+        "player":
+            {
+                "path_iddle": "./Zarate_enzo_juego/recursos/player/nick/iddle/0.png",
+                "path_walk": "./Zarate_enzo_juego/recursos/player/nick/walk/0.png",
+                "path_run": "./Zarate_enzo_juego/recursos/player/nick/run/0.png",
+                "path_shoot": "./Zarate_enzo_juego/recursos/player/nick/atak/0.png",
+                "path_jump": "./Zarate_enzo_juego/recursos/player/nick/jump/0.png",
+                "path_die": "./Zarate_enzo_juego/recursos/player/nick/die/0.png",
+                "coord_x": 0,
+                "coord_y": 0,
+                "speed_walk": 3, 
+                "speed_run": 6
+            },
+        
+        "enemy":
+        {
+            "path_walk": "./Zarate_enzo_juego/recursos/enemy/walk.png",
+            "path_fall": "./Zarate_enzo_juego/recursos/enemy/fall.png",
+            "coord_y": 0,
+            "w": 40,
+            "h": 40,
+            "frame_rate": 100
+        },
+
+        "stage_uno":
+        {
+            "background": "./Zarate_enzo_juego/recursos/fondo.jpg",
+
+            "max_enemies": 3,
+            "max_enemy_damage": 3,
+            "max_enemy_speed": 5,
+
+            "max_tramps": 3,
+            "max_tramps_speed": 4,
+            "max_tramps_damage": 6,
+
+            "max_fruits": 8,
+            "min_life": 5,
+            "max_life": 10,
+            "min_points": 20,
+            "max_points": 50
+        },
+
+        "stage_dos":
+        {
+            "background": "./Zarate_enzo_juego/recursos/fondo.jpg",
+
+            "max_enemies": 6,
+            "max_enemy_damage": 6,
+            "max_enemy_speed": 7,
+
+            "max_tramps": 5,
+            "max_tramps_speed": 6,
+            "max_tramps_damage": 10,
+
+            "max_fruits": 5,
+            "min_life": 3,
+            "max_life": 8,
+            "min_points": 30,
+            "max_points": 60
+        },
+
+        "stage_tres":
+        {
+            "background": "./Zarate_enzo_juego/recursos/fondo.jpg",
+
+            "max_enemies": 8,
+            "max_enemy_damage": 10,
+            "max_enemy_speed": 9,
+
+            "max_tramps": 7,
+            "max_tramps_speed": 8,
+            "max_tramps_damage": 15,
+
+            "max_fruits": 2,
+            "min_life": 1,
+            "max_life": 7,
+            "min_points": 50,
+            "max_points": 100
+        }
+    }
+}

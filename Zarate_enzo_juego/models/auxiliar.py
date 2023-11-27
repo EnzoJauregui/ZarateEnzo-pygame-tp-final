@@ -37,7 +37,7 @@ class SurfaceManager:
         return sprites_list
     
     @staticmethod
-    def exportar_a_sql():
+    def exportar_a_sql(lista):
         """
         
         """
@@ -64,9 +64,9 @@ class SurfaceManager:
                 cursor.execute("DELETE FROM HIGH SCORE;")
                 # Lista de datos de Jugadores obtenidos de self.contenido_ranking_estadisticas_sql()
                 lista = []
-                for _ in lista:
-                    # Ejecuta la consulta SQL con los valores de "jugador" para insertarlos en la tabla
-                    cursor.execute("INSERT INTO HIGH SCORE (Nombre, Puntos) VALUES (?, ?)", (_,))
+                for player in lista:
+                    
+                    cursor.execute("INSERT INTO HIGH SCORE (Nombre, Puntos) VALUES (?, ?)", (player,))
 
                 # Confirma la transacción
                 conexion.commit()

@@ -1,26 +1,25 @@
 import pygame as pg
 import random
+from auxiliar.constantes import ANCHO_VENTANA, DEBUG, PUSH, open_config
 from models.auxiliar import SurfaceManager as sf
-from models.constantes import ANCHO_VENTANA, DEBUG, PUSH
 
 path = r'Zarate_enzo_juego\recursos\tramps\0.png'
 class Tramp:
-    def __init__(self, coord_x, coord_y, w, h,path=r'Zarate_enzo_juego\recursos\tramps\1.png', speed=5, damage=1, frame_rate = 60):
+    def __init__(self, coord_x, w, h, max_speed, max_damage, path=r'Zarate_enzo_juego\recursos\tramps\1.png', frame_rate = 60):
+        
         self.__tramp_animation = sf.get_surface_from_spritesheet(path,8,1,(w,h),flip=True)
         self.__move_x = coord_x
-        self.__move_y = coord_y
-        self.__speed = speed
+        self.__move_y = random.randint(0, 650)
+        self.__speed = max_speed
         self.update_time = pg.time.get_ticks()
         self.__frame_rate = frame_rate
         self.__initial_frame = 0
         self.__actual_img_animation = self.__tramp_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
-        self.__damage = damage
+        self.__damage = max_damage
         self.__push = PUSH
         self.update_time = pg.time.get_ticks()
         
-        
-
     @property
     def get_rect(self) -> int:
         """
@@ -30,7 +29,6 @@ class Tramp:
         pg.Rect: Rectángulo de la trampa.
         """
         return self.__rect
-
 
     @property
     def get_damage(self) -> int:
@@ -99,7 +97,7 @@ class Tramp:
         screen.blit(self.__actual_img_animation, self.__rect)
 
     @staticmethod
-    def generate_tramps(num_tramps):
+    def generate_tramps(num_tramps, max_damage, max_speed):
         """
         Genera una lista de trampas aleatorias.
 
@@ -110,12 +108,13 @@ class Tramp:
         list[Tramp]: Lista de objetos Tramp generados.
         """
         tramps = []
-        
+
         for _ in range(num_tramps):
             x = ANCHO_VENTANA - 50
-            y = random.randint(0, 650)
+            damage = random.randint(1, max_damage)
+            speed = random.uniform(1, max_speed)
 
-            tramp = Tramp(x, y, 50, 50)  # Ajusta los parámetros según sea necesario
+            tramp = Tramp(x, 50, 50, speed, damage)  # Ajusta los parámetros según sea necesario
             tramps.append(tramp)
 
         return tramps

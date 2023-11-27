@@ -1,5 +1,5 @@
 import pygame as pg
-from models.constantes import DEBUG
+from auxiliar.constantes import DEBUG
 
 class Plataform:
     def __init__(self, x, y, w, h,numb):

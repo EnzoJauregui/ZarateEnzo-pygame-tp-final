@@ -1,27 +1,27 @@
 import pygame as pg
 from models.auxiliar import SurfaceManager as sf
-from models.constantes import ANCHO_VENTANA, DEBUG, GROUND_LEVEL, RECTIFY, LIFE_POINTS, HEIGHT_RECT
+from auxiliar.constantes import ANCHO_VENTANA, DEBUG, GROUND_LEVEL, RECTIFY, LIFE_POINTS, HEIGHT_RECT, open_config
 from models.platafroma import Plataform
 from models.player.main_enemy import Enemigo
 from models.tramps import Tramp
 from models.bullet import Bullet
-from models.Fruits import Fruit
-
-
 
 class Jugador(pg.sprite.Sprite):
     def __init__(self, coord_x, coord_y,w ,h ,frame_rate = 200, speed_walk = 3, speed_run = 6):
-        self.__iddle_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h), flip=True)
-        self.__iddle_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\iddle\0.png', 1, 1,(w,h))
-        self.__walk_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\walk\0.png', 3, 1,(w,h), flip=True)
-        self.__walk_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\walk\0.png', 3, 1,(w,h))
-        self.__run_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\run\0.png', 3, 1,(w,h), flip=True)
-        self.__run_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\run\0.png', 3, 1,(w,h))
-        self.__shoot_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 1, 1,(w,h), flip=True)
-        self.__shoot_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\atak\0.png', 1, 1,(w,h))
-        self.__jump_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY), flip=True)
-        self.__jump_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\jump\0.png', 5, 1,(w*RECTIFY,h*RECTIFY))
-        self.__die = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\player\nick\die\0.png', 11, 1,(w,h)) 
+
+        self.__configs = open_config()["player"]
+
+        self.__iddle_r = sf.get_surface_from_spritesheet(self.__configs.get("path_iddle", "not found"), 1, 1,(w,h), flip=True)
+        self.__iddle_l = sf.get_surface_from_spritesheet(self.__configs.get("path_iddle", "not found"), 1, 1,(w,h))
+        self.__walk_r = sf.get_surface_from_spritesheet(self.__configs.get("path_walk", "not found"), 3, 1,(w,h), flip=True)
+        self.__walk_l = sf.get_surface_from_spritesheet(self.__configs.get("path_walk", "not found"), 3, 1,(w,h))
+        self.__run_r = sf.get_surface_from_spritesheet(self.__configs.get("path_run", "not found"), 3, 1,(w,h), flip=True)
+        self.__run_l = sf.get_surface_from_spritesheet(self.__configs.get("path_run", "not found"), 3, 1,(w,h))
+        self.__shoot_r = sf.get_surface_from_spritesheet(self.__configs.get("path_shoot", "not found"), 1, 1,(w,h), flip=True)
+        self.__shoot_l = sf.get_surface_from_spritesheet(self.__configs.get("path_shoot", "not found"), 1, 1,(w,h))
+        self.__jump_r = sf.get_surface_from_spritesheet(self.__configs.get("path_jump", "not found"), 5, 1,(w*RECTIFY,h*RECTIFY), flip=True)
+        self.__jump_l = sf.get_surface_from_spritesheet(self.__configs.get("path_jump", "not found"), 5, 1,(w*RECTIFY,h*RECTIFY))
+        self.__die = sf.get_surface_from_spritesheet(self.__configs.get("path_die", "not found"), 11, 1,(w,h)) 
 
         self.__move_x = coord_x
         self.__move_y = coord_y
@@ -129,6 +129,7 @@ class Jugador(pg.sprite.Sprite):
         """
         for bullet in bullets:
             if self.__rect.colliderect(bullet.rect):
+                self.reduce_life_points(bullet.get_damage)
                 print("me dio")
                 bullet.kill()
                 break

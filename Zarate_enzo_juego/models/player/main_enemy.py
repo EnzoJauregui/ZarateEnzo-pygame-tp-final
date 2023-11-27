@@ -1,18 +1,20 @@
 import pygame as pg
 import random
 from models.platafroma import Plataform
-from models.constantes import GROUND_LEVEL, ANCHO_VENTANA, PUSH, DEBUG
+from auxiliar.constantes import GROUND_LEVEL, ANCHO_VENTANA, PUSH, DEBUG, open_config
 from models.bullet import Bullet
 from models.auxiliar import SurfaceManager as sf
 
 class Enemigo(pg.sprite.Sprite):
-    def __init__(self, coord_x, coord_y,w,h, speed_walk,damage, frame_rate=100):
+    def __init__(self, coord_x, coord_y,w,h,damage, speed_walk,frame_rate=100):
         super().__init__()
 
-        self.__walk_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\walk.png', 3, 1,(w,h))
-        self.__walk_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\walk.png', 3, 1,(w,h), flip=True)
-        self.__fall_r = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\fall.png', 1, 1,(w,h))
-        self.__fall_l = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego\recursos\enemy\fall.png', 1, 1,(w,h), flip=True)
+        self.__config = open_config().get("enemy")
+
+        self.__walk_r = sf.get_surface_from_spritesheet(self.__config["path_walk"], 3, 1,(w,h))
+        self.__walk_l = sf.get_surface_from_spritesheet(self.__config["path_walk"], 3, 1,(w,h), flip=True)
+        self.__fall_r = sf.get_surface_from_spritesheet(self.__config["path_fall"], 1, 1,(w,h))
+        self.__fall_l = sf.get_surface_from_spritesheet(self.__config["path_fall"], 1, 1,(w,h), flip=True)
 
         self.__move_x = coord_x
         self.__move_y = coord_y
@@ -275,7 +277,7 @@ class Enemigo(pg.sprite.Sprite):
             pg.draw.rect(screen, "Blue", self.__rect)
 
     @staticmethod
-    def generate_enemies(num_enemies):
+    def generate_enemies(num_enemies, max_damage, max_speed):
         """
         Genera una lista de enemigos de forma aleatoria.
 
@@ -286,14 +288,14 @@ class Enemigo(pg.sprite.Sprite):
         list: Lista de objetos Enemigo generados.
         """
         enemies = []
-        
+
         for _ in range(num_enemies):
             x = random.randint(100, ANCHO_VENTANA-40)
             y = 0
-            speed_walk = random.uniform(1, 5)
-            damage = random.randint(1, 3)
+            damage = random.randint(1, max_damage)
+            speed = random.uniform(1, max_speed)
 
-            enemy = Enemigo(x, y, 40, 40, speed_walk, damage)
+            enemy = Enemigo(x, y, 40, 40,damage,speed)
             enemies.append(enemy)
 
         return enemies

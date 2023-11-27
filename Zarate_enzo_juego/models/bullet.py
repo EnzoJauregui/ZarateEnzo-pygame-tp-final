@@ -1,11 +1,10 @@
 import pygame as pg
-from models.constantes import DEBUG, ANCHO_VENTANA
+from auxiliar.constantes import DEBUG, ANCHO_VENTANA
 
 class Bullet(pg.sprite.Sprite):
     def __init__(self, x, y, direction, img_path = False):
         super().__init__()
         self.__load_img(img_path)
-        
         self.__rect = self.image.get_rect(center=(x, y))
         self.__direction = direction
         self.__speed = 5
@@ -21,6 +20,16 @@ class Bullet(pg.sprite.Sprite):
         pg.Rect: Rectángulo de la bala.
         """
         return self.__rect
+    
+    @property
+    def get_damage(self) -> int:
+        """
+        Devuelve la cantidad de daño infligido por la bala.
+
+        DEVUELVE:
+        int: Daño infligido por la bala.
+        """
+        return self.__damage
     
     @property
     def is_alive(self):

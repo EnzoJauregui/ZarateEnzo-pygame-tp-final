@@ -1,12 +1,11 @@
 from typing import Any
 import pygame as pg
 from models.auxiliar import SurfaceManager as sf
-from models.constantes import ANCHO_VENTANA, GROUND_LEVEL
+from auxiliar.constantes import ANCHO_VENTANA, GROUND_LEVEL
 import random
 
 class Fruit(pg.sprite.Sprite):
     def __init__(self,x, y, w, h, increase_life, increase_points, frame_rate = 60):
-        
         super().__init__()
         self.__actual_animation = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego/recursos/Fruits/Apple.png',17, 1,(w,h))
         self.__frame_rate = frame_rate
@@ -93,7 +92,7 @@ class Fruit(pg.sprite.Sprite):
         screen.blit(self.__actual_img_animation, self.__rect)
     
     @staticmethod
-    def generate_fruits(num_fruits):
+    def generate_fruits(num_fruits: int, min_life: int, max_life: int, min_points: int, max_points: int):
         """
         Genera una lista de frutas de forma aleatoria.
 
@@ -107,8 +106,8 @@ class Fruit(pg.sprite.Sprite):
         for _ in range(num_fruits):
             x = random.randint(50, ANCHO_VENTANA - 50)
             y = random.randint(150, GROUND_LEVEL)
-            increase_life = random.randint(5, 15)  
-            increase_points = random.randint(10, 70) 
+            increase_life = random.randint(min_life, max_life)  
+            increase_points = random.randint(min_points, max_points) 
             
             fruit = Fruit(x, y, 50, 50, increase_life, increase_points)
             fruits.append(fruit)
