@@ -6,29 +6,15 @@ from models.tramps import Tramp
 from models.Fruits import Fruit
 
 class Game:
-    def __init__(self, screen: pg.Surface, list_plataforms,stage):
-        self.__configs = open_config()[stage]
-
+    def __init__(self, screen: pg.Surface, list_plataforms):
+        self.__stage = 1
+        self.__configs = open_config()
         self.__screen = screen
-        self.__back_image = pg.image.load(self.__configs["background"])
-        self.__back_image = pg.transform.scale(self.__back_image, (ANCHO_VENTANA, ALTO_VENTANA))
-        self.__player = Jugador(0, 0, 30, 30)
+        self.load_stage_config()
+
         self.__plataforms = list_plataforms
-        self.__emenies = Enemigo.generate_enemies(self.__configs["max_enemies"], 
-                                                  self.__configs["max_enemy_damage"], 
-                                                  self.__configs["max_enemy_speed"])
-        self.__total_enemies = len(self.__emenies)
-        self.__enemies_eliminated = 0
         
-        self.__tramps = Tramp.generate_tramps(self.__configs["max_tramps"], 
-                                              self.__configs["max_tramps_speed"], 
-                                              self.__configs["max_tramps_damage"])
         
-        self.__fruits = Fruit.generate_fruits(self.__configs["max_fruits"],
-                                              self.__configs["min_life"],
-                                              self.__configs["max_life"],
-                                              self.__configs["min_points"],
-                                              self.__configs["max_points"])
     
     @property
     def get_player(self):
@@ -40,8 +26,32 @@ class Game:
         """
         return self.__player
     
+    def load_stage_config(self):
+        stage = self.__configs[f'stage_{self.__stage}']
+        self.__back_image = pg.image.load(stage["background"])
+        self.__back_image = pg.transform.scale(self.__back_image, (ANCHO_VENTANA, ALTO_VENTANA))
+        self.__player = Jugador(0, 0, 30, 30)
+        self.__emenies = Enemigo.generate_enemies(stage["max_enemies"], 
+                                                  stage["max_enemy_damage"], 
+                                                  stage["max_enemy_speed"])
+
+        self.__tramps = Tramp.generate_tramps(stage["max_tramps"], 
+                                              stage["max_tramps_speed"], 
+                                              stage["max_tramps_damage"])
+        
+        self.__fruits = Fruit.generate_fruits(stage["max_fruits"],
+                                              stage["min_life"],
+                                              stage["max_life"],
+                                              stage["min_points"],
+                                              stage["max_points"])
+    
     def next_stage(self):
-        self.__configs#completar
+        self.__stage+=1
+
+        if self.__stage <= 3:
+            self.load_stage_config()
+        else:
+            print("hola")
 
     def action_enemies(self):
         """
@@ -60,9 +70,8 @@ class Game:
                 enemy.check_bullet_collision(self.__player.get_bullets)
 
             self.__emenies = [enemy for enemy in self.__emenies if not enemy.dead]
-            self.__enemies_eliminated += self.__total_enemies - len(self.__emenies)
-            if self.__enemies_eliminated == self.__total_enemies:
-                self.next_stage()
+        else:
+            self.next_stage()
     
     def action_tramps(self):
         """

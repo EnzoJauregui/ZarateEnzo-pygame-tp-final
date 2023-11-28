@@ -48,7 +48,7 @@ def exportar_a_sql(lista):
 
             try:
                 cursor = conexion.cursor()  # Crea un objeto cursor
-                cursor.execute("DELETE FROM HIGH_SCORE;")
+                #cursor.execute("DELETE FROM HIGH_SCORE;")
 
                 # Lista de datos de Jugadores obtenidos de self.contenido_ranking_estadisticas_sql()
                 for jugador, puntos in lista:

@@ -4,6 +4,8 @@ from models.text import Text
 from models.platafroma import Plataform
 from models.game import Game
 
+name_player = input("Ingrese su nombre: ")
+
 pg.init()
 
 screen = pg.display.set_mode((ANCHO_VENTANA, ALTO_VENTANA))
@@ -17,12 +19,9 @@ list_plataforms.append(Plataform(650, 380, 150, 30, 5))
 list_plataforms.append(Plataform(0, 300, 150, 30, 5))
 list_plataforms.append(Plataform(ANCHO_VENTANA - 150, 300, 150, 30, 5))
 
-game = Game(screen, list_plataforms, "stage_1")
-#game = Game(screen, list_plataforms, "stage_dos")
-#game = Game(screen, list_plataforms, "stage_tres")
+game = Game(screen, list_plataforms)
 
-#name_player = input("Ingrese su nombre: ")
-max_time_sec = 10
+max_time_sec = 60
 
 text = Text(screen)
 
@@ -64,7 +63,8 @@ while start_game:
 
     delta_ms = clock.tick(FPS)
 
-# players_score.append((name_player, game.get_player.get_points))
-
-# exportar_a_sql(players_score)
 pg.quit()
+
+players_score.append((name_player, game.get_player.get_points))
+
+exportar_a_sql(players_score)
