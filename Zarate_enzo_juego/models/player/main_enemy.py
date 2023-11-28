@@ -242,14 +242,15 @@ class Enemigo(pg.sprite.Sprite):
         Realiza la animación del enemigo.
         """
         if not self.__is_on_ground and not self.__plataform_colition:
-            self.__actual_img_animation = self.__fall_r if self.__is_looking_right else self.__fall_l
+            self.__actual_img_animation = self.__fall_r[0] if self.__is_looking_right else self.__fall_l[0]
         else:
-            if pg.time.get_ticks() - self.update_time >= self.__frame_rate:
+            if self.__actual_animation and pg.time.get_ticks() - self.update_time >= self.__frame_rate:
                 self.__initial_frame += 1
                 if self.__initial_frame >= len(self.__actual_animation):
                     self.__initial_frame = 0
                 self.update_time = pg.time.get_ticks()
-            self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
+                self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
+
 
     def update(self,plataforms: list[Plataform]):
         """

@@ -17,6 +17,8 @@ class Game:
         self.__emenies = Enemigo.generate_enemies(self.__configs["max_enemies"], 
                                                   self.__configs["max_enemy_damage"], 
                                                   self.__configs["max_enemy_speed"])
+        self.__total_enemies = len(self.__emenies)
+        self.__enemies_eliminated = 0
         
         self.__tramps = Tramp.generate_tramps(self.__configs["max_tramps"], 
                                               self.__configs["max_tramps_speed"], 
@@ -37,6 +39,9 @@ class Game:
         Jugador: Objeto del jugador.
         """
         return self.__player
+    
+    def next_stage(self):
+        self.__configs#completar
 
     def action_enemies(self):
         """
@@ -55,6 +60,9 @@ class Game:
                 enemy.check_bullet_collision(self.__player.get_bullets)
 
             self.__emenies = [enemy for enemy in self.__emenies if not enemy.dead]
+            self.__enemies_eliminated += self.__total_enemies - len(self.__emenies)
+            if self.__enemies_eliminated == self.__total_enemies:
+                self.next_stage()
     
     def action_tramps(self):
         """
@@ -90,16 +98,20 @@ class Game:
         Realiza las acciones relacionadas con el jugador en el juego.
         - Actualiza las balas del jugador.
         - Dibuja las balas del jugador.
-        - Controla las teclas del jugador.
         - Actualiza, dibuja y controla el jugador.
         """
         for bullet in self.__player.get_bullets:
             bullet.update()
     
         self.__player.get_bullets.draw(self.__screen)
-        self.__player.control_keys()
         self.__player.update(self.__screen, self.__plataforms, self.__emenies, self.__tramps)
         self.__player.draw(self.__screen)
+
+    def read_keys(self):
+        """
+        Controla las teclas del jugador.
+        """
+        self.__player.control_keys()
 
     def refresh_screen(self):
         """

@@ -25,7 +25,7 @@
             "frame_rate": 100
         },
 
-        "stage_uno":
+        "stage_1":
         {
             "background": "./Zarate_enzo_juego/recursos/fondo.jpg",
 
@@ -44,11 +44,11 @@
             "max_points": 50
         },
 
-        "stage_dos":
+        "stage_2":
         {
             "background": "./Zarate_enzo_juego/recursos/fondo.jpg",
 
-            "max_enemies": 6,
+            "max_enemies": 4,
             "max_enemy_damage": 6,
             "max_enemy_speed": 7,
 
@@ -63,11 +63,11 @@
             "max_points": 60
         },
 
-        "stage_tres":
+        "stage_3":
         {
             "background": "./Zarate_enzo_juego/recursos/fondo.jpg",
 
-            "max_enemies": 8,
+            "max_enemies": 6,
             "max_enemy_damage": 10,
             "max_enemy_speed": 9,
 
