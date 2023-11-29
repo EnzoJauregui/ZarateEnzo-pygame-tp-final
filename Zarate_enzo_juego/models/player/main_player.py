@@ -7,7 +7,7 @@ from models.tramps import Tramp
 from models.bullet import Bullet
 
 class Jugador(pg.sprite.Sprite):
-    def __init__(self, coord_x, coord_y,w ,h ,frame_rate = 200, speed_walk = 3, speed_run = 6):
+    def __init__(self, coord_x, coord_y,w ,h ,frame_rate = 60, speed_walk = 3, speed_run = 6):
 
         self.__configs = open_config()["player"]
 
@@ -43,6 +43,7 @@ class Jugador(pg.sprite.Sprite):
 
         self.__plataform_colition = False
         self.__life_points = LIFE_POINTS
+        self.__lives = 3
         self.counter = 1000
 
         self.__is_shooting = False
@@ -94,6 +95,27 @@ class Jugador(pg.sprite.Sprite):
         """
         return self.__bullet_group
     
+    @property
+    def get_is_dead(self) -> bool:
+        """
+        Devuelve el jugador esta muerto o no.
+
+        DEVUELVE:
+        self.__is_dead (bool): indica si esta muerto o no.
+        """
+        return self.__is_dead
+    
+    @property
+    def get_lives(self) -> int:
+        """
+        Devuelve las vidas del jugador.
+
+        DEVUELVE:
+        self.__lives (int): vidas actuales del jugador.
+        """
+        return self.__lives
+    
+
     def bullet_shoot(self):
         if self.__bullet_ready:
             self.__is_shooting = True
@@ -157,6 +179,17 @@ class Jugador(pg.sprite.Sprite):
             self.__life_points += increase
         else:
             self.__life_points = LIFE_POINTS
+
+    def reduce_lives(self):
+        if self.__life_points <= 0:
+            self.__life_points = LIFE_POINTS
+            self.__lives-=1
+            print(self.__lives)
+    
+    def is_died(self):
+        if self.__lives == 0:
+            self.__is_dead = True
+            self.__actual_animation = self.__die
     
     def move_back(self, amount):
         """
@@ -375,6 +408,7 @@ class Jugador(pg.sprite.Sprite):
         self.__set_borders_limits()
         self.applty_gravity()
         self.collitions(plataforms, enemies, tramps)
+        self.reduce_lives()
            
     def do_animation(self):
         """

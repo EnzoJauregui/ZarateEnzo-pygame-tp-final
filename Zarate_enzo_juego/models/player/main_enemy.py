@@ -6,7 +6,7 @@ from models.bullet import Bullet
 from models.auxiliar import SurfaceManager as sf
 
 class Enemigo(pg.sprite.Sprite):
-    def __init__(self, coord_x, coord_y,w,h,damage, speed_walk,frame_rate=100):
+    def __init__(self, coord_x, coord_y,w,h,damage, speed_walk,frame_rate=300):
         super().__init__()
 
         self.__config = open_config().get("enemy")
@@ -26,6 +26,8 @@ class Enemigo(pg.sprite.Sprite):
         self.__plataform_colition = False
         self.__is_on_ground = False
 
+        
+        self.__enemy_animation_time = 0
         self.__frame_rate = frame_rate
         self.update_time = pg.time.get_ticks()
         self.__initial_frame = 0
@@ -108,7 +110,6 @@ class Enemigo(pg.sprite.Sprite):
         """
         if self.__is_on_ground or self.__plataform_colition:
             if self.__bullet_ready:
-                print('Enemigo dispara')
                 self.__bullet_group.add(self.create_bullet())
                 self.__bullet_ready = False
                 self.__bullet_time = pg.time.get_ticks()
@@ -237,22 +238,24 @@ class Enemigo(pg.sprite.Sprite):
         self.collition_plataform(plataforms)
         self.auto_move()
 
-    def do_animation(self):
+    def do_animation(self, delta_ms):
         """
         Realiza la animación del enemigo.
         """
         if not self.__is_on_ground and not self.__plataform_colition:
             self.__actual_img_animation = self.__fall_r[0] if self.__is_looking_right else self.__fall_l[0]
         else:
-            if self.__actual_animation and pg.time.get_ticks() - self.update_time >= self.__frame_rate:
+            self.__enemy_animation_time += delta_ms
+            
+        if self.__enemy_animation_time >= self.__frame_rate:
+            self.__enemy_animation_time = 0
+            if self.__initial_frame < len(self.__actual_animation) - 1:
                 self.__initial_frame += 1
-                if self.__initial_frame >= len(self.__actual_animation):
-                    self.__initial_frame = 0
-                self.update_time = pg.time.get_ticks()
-                self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
+            else:
+                self.__initial_frame = 0
 
 
-    def update(self,plataforms: list[Plataform]):
+    def update(self,plataforms: list[Plataform], delta_ms):
         """
         Actualiza el estado del enemigo.
 
@@ -260,7 +263,7 @@ class Enemigo(pg.sprite.Sprite):
         plataforms (list[Plataform]): Lista de plataformas en el juego.
         """
         self.do_movement(plataforms)
-        self.do_animation()
+        self.do_animation(delta_ms)
         self.__bullet_group.update()
         self.recharge()
 

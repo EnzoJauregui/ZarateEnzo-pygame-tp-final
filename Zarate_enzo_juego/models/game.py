@@ -7,15 +7,14 @@ from models.Fruits import Fruit
 
 class Game:
     def __init__(self, screen: pg.Surface, list_plataforms):
-        self.__stage = 1
         self.__configs = open_config()
+        self.__stage = 1
         self.__screen = screen
         self.load_stage_config()
 
         self.__plataforms = list_plataforms
+        self.__win = False
         
-        
-    
     @property
     def get_player(self):
         """
@@ -51,9 +50,9 @@ class Game:
         if self.__stage <= 3:
             self.load_stage_config()
         else:
-            print("hola")
+            self.__win = True
 
-    def action_enemies(self):
+    def action_enemies(self, delta_ms):
         """
         Realiza las acciones relacionadas con los enemigos en el juego.
         - Verifica colisiones con las balas del jugador.
@@ -64,7 +63,7 @@ class Game:
         if len(self. __emenies)> 0:
             for enemy in self.__emenies:
                 self.__player.check_bullet_collision(enemy.get_bullets)
-                enemy.update(self.__plataforms)
+                enemy.update(self.__plataforms, delta_ms)
                 enemy.draw(self.__screen)
                 enemy.bullet_shoot()
                 enemy.check_bullet_collision(self.__player.get_bullets)
@@ -131,14 +130,14 @@ class Game:
         for plataform in self.__plataforms:
             plataform.draw(self.__screen)
         
-    def update(self):
+    def update(self, delta_ms):
         """
         Actualiza el estado del juego.
         - Refresca la pantalla.
         - Realiza acciones relacionadas con enemigos, trampas, frutas y el jugador.
         """
         self.refresh_screen()
-        self.action_enemies()
+        self.action_enemies(delta_ms)
         self.action_tramps()
         self.action_fruits()
         self.action_player()

@@ -1,6 +1,6 @@
 import pygame as pg
 import random
-from auxiliar.constantes import ANCHO_VENTANA, DEBUG, PUSH, open_config
+from auxiliar.constantes import ANCHO_VENTANA, DEBUG, PUSH, GROUND_LEVEL, open_config
 from models.auxiliar import SurfaceManager as sf
 
 path = r'Zarate_enzo_juego\recursos\tramps\0.png'
@@ -9,7 +9,7 @@ class Tramp:
         
         self.__tramp_animation = sf.get_surface_from_spritesheet(path,8,1,(w,h),flip=True)
         self.__move_x = coord_x
-        self.__move_y = random.randint(0, 650)
+        self.__move_y = random.randint(0, GROUND_LEVEL)
         self.__speed = max_speed
         self.update_time = pg.time.get_ticks()
         self.__frame_rate = frame_rate
@@ -58,7 +58,7 @@ class Tramp:
         self.__move_x -= self.__speed
         if self.__move_x + self.__rect.width < 0:
             self.__move_y += 50
-            if self.__move_y >= 650:
+            if self.__move_y >= GROUND_LEVEL:
                 self.__move_y = -50  # Cambia a -20 cuando llega al límite en y
             self.__move_x = ANCHO_VENTANA
 
@@ -91,10 +91,10 @@ class Tramp:
         RECIBE:
         screen (pg.Surface): Superficie de la pantalla.
         """
+        screen.blit(self.__actual_img_animation, self.__rect)
         if DEBUG:
             pg.draw.rect(self.__actual_img_animation, "Blue", self.__rect)
             
-        screen.blit(self.__actual_img_animation, self.__rect)
 
     @staticmethod
     def generate_tramps(num_tramps, max_damage, max_speed):

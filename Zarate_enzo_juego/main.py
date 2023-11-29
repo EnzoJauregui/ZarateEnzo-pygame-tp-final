@@ -4,7 +4,7 @@ from models.text import Text
 from models.platafroma import Plataform
 from models.game import Game
 
-name_player = input("Ingrese su nombre: ")
+#name_player = input("Ingrese su nombre: ")
 
 pg.init()
 
@@ -48,7 +48,8 @@ while start_game:
             print('Estoy CERRANDO el JUEGO')
             start_game = False 
 
-    game.update()
+    delta_ms = clock.tick(FPS)
+    game.update(delta_ms)
 
     if remaining_time <= 0:
         text.game_over()
@@ -61,10 +62,9 @@ while start_game:
     # Actualizar pantalla
     pg.display.update()
 
-    delta_ms = clock.tick(FPS)
 
 pg.quit()
 
-players_score.append((name_player, game.get_player.get_points))
+# players_score.append((name_player, game.get_player.get_points))
 
-exportar_a_sql(players_score)
+# exportar_a_sql(players_score)
