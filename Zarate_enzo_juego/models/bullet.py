@@ -49,7 +49,7 @@ class Bullet(pg.sprite.Sprite):
         img_path (bool): Ruta de la imagen de la bala (opcional, predeterminado a False).
         """
         if img_path:
-            self.image = pg.image.load(r'Zarate_enzo_juego\recursos\bullet\1.png')
+            self.image = pg.image.load('./Zarate_enzo_juego/recursos/bullet/1.png')
         else: 
             self.image = pg.Surface((4, 20))
             self.image.fill('Black')

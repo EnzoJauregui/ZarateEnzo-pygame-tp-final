@@ -3,11 +3,11 @@ import random
 from auxiliar.constantes import ANCHO_VENTANA, DEBUG, PUSH, open_config
 from models.auxiliar import SurfaceManager as sf
 
-path = r'Zarate_enzo_juego\recursos\tramps\0.png'
+#path = r'Zarate_enzo_juego\recursos\tramps\0.png'
 class Tramp:
-    def __init__(self, coord_x, w, h, max_speed, max_damage,ground_level, path=r'Zarate_enzo_juego\recursos\tramps\1.png', frame_rate = 60):
+    def __init__(self, coord_x, w, h, max_speed, max_damage,ground_level, path='./Zarate_enzo_juego/recursos/tramps/1.png', frame_rate = 60):
         
-        self.__tramp_animation = sf.get_surface_from_spritesheet(path,8,1,(w,h),flip=True)
+        self.__tramp_animation = sf.get_surface_from_spritesheet(path,8,1,(w,h),flip=False)
         self.__move_x = coord_x
         self.__ground_level = ground_level
         self.__move_y = random.randint(0, self.__ground_level)
