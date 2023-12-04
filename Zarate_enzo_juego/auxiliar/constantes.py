@@ -3,11 +3,11 @@ import sqlite3
 
 ANCHO_VENTANA = 900
 ALTO_VENTANA = 800
-GROUND_LEVEL = 650
+
 HEIGHT_RECT = 10
 RECTIFY = 1.2
 FPS = 60
-DEBUG = True
+DEBUG = False
 CONGIG_FILE_PATH = "./Zarate_enzo_juego/models/config.json"
 PLATAFORM_LIMIT = 300
 HEIGHT_RECT = 3

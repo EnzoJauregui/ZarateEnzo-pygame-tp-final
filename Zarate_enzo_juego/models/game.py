@@ -1,19 +1,30 @@
 import pygame as pg
 from auxiliar.constantes import open_config, ANCHO_VENTANA, ALTO_VENTANA
 from models.player.main_player import Jugador
+from models.platafroma import Plataform
 from models.player.main_enemy import Enemigo
 from models.tramps import Tramp
 from models.Fruits import Fruit
 
 class Game:
-    def __init__(self, screen: pg.Surface, list_plataforms):
+    def __init__(self, screen: pg.Surface):
         self.__configs = open_config()
         self.__stage = 1
+        
         self.__screen = screen
+        self.__player = Jugador(0, 0, 30, 30, 650)
         self.load_stage_config()
+        self.__game_active = False
 
-        self.__plataforms = list_plataforms
         self.__win = False
+
+    @property
+    def get_game_active(self):
+        return self.__game_active
+    
+    @property
+    def get_win(self):
+        return self.__win
         
     @property
     def get_player(self):
@@ -26,23 +37,44 @@ class Game:
         return self.__player
     
     def load_stage_config(self):
+
+        pg.mixer.stop()
+
         stage = self.__configs[f'stage_{self.__stage}']
         self.__back_image = pg.image.load(stage["background"])
         self.__back_image = pg.transform.scale(self.__back_image, (ANCHO_VENTANA, ALTO_VENTANA))
-        self.__player = Jugador(0, 0, 30, 30)
+        self.get_player.set_ground_level(stage["ground_level"])
+        self.get_player.set_coord_x(self.__configs["player"]["coord_x"])
+        self.get_player.set_coord_y(self.__configs["player"]["coord_y"])
+        
+        self.__plataforms = [Plataform(
+                            platform["coord_x"],
+                            platform["coord_y"],
+                            platform["width"],
+                            platform["height"],
+                            platform["numb"]
+                            ) for platform in stage["platforms"]]
+
         self.__emenies = Enemigo.generate_enemies(stage["max_enemies"], 
                                                   stage["max_enemy_damage"], 
-                                                  stage["max_enemy_speed"])
+                                                  stage["max_enemy_speed"],
+                                                  stage["ground_level"],
+                                                  stage["enemy"])
 
         self.__tramps = Tramp.generate_tramps(stage["max_tramps"], 
                                               stage["max_tramps_speed"], 
-                                              stage["max_tramps_damage"])
+                                              stage["max_tramps_damage"],
+                                              stage["ground_level"])
         
         self.__fruits = Fruit.generate_fruits(stage["max_fruits"],
                                               stage["min_life"],
                                               stage["max_life"],
                                               stage["min_points"],
-                                              stage["max_points"])
+                                              stage["max_points"],
+                                              stage["ground_level"])
+        
+        self.__sound_stage = pg.mixer.Sound(stage["sound"])
+        self.__sound_stage.play(-1)
     
     def next_stage(self):
         self.__stage+=1
@@ -51,6 +83,7 @@ class Game:
             self.load_stage_config()
         else:
             self.__win = True
+    
 
     def action_enemies(self, delta_ms):
         """
@@ -127,8 +160,8 @@ class Game:
         """
         self.__screen.blit(self.__back_image, (0, 0))
 
-        for plataform in self.__plataforms:
-            plataform.draw(self.__screen)
+        for platform in self.__plataforms:
+            platform.draw(self.__screen)
         
     def update(self, delta_ms):
         """

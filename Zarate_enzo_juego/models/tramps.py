@@ -1,15 +1,16 @@
 import pygame as pg
 import random
-from auxiliar.constantes import ANCHO_VENTANA, DEBUG, PUSH, GROUND_LEVEL, open_config
+from auxiliar.constantes import ANCHO_VENTANA, DEBUG, PUSH, open_config
 from models.auxiliar import SurfaceManager as sf
 
 path = r'Zarate_enzo_juego\recursos\tramps\0.png'
 class Tramp:
-    def __init__(self, coord_x, w, h, max_speed, max_damage, path=r'Zarate_enzo_juego\recursos\tramps\1.png', frame_rate = 60):
+    def __init__(self, coord_x, w, h, max_speed, max_damage,ground_level, path=r'Zarate_enzo_juego\recursos\tramps\1.png', frame_rate = 60):
         
         self.__tramp_animation = sf.get_surface_from_spritesheet(path,8,1,(w,h),flip=True)
         self.__move_x = coord_x
-        self.__move_y = random.randint(0, GROUND_LEVEL)
+        self.__ground_level = ground_level
+        self.__move_y = random.randint(0, self.__ground_level)
         self.__speed = max_speed
         self.update_time = pg.time.get_ticks()
         self.__frame_rate = frame_rate
@@ -58,7 +59,7 @@ class Tramp:
         self.__move_x -= self.__speed
         if self.__move_x + self.__rect.width < 0:
             self.__move_y += 50
-            if self.__move_y >= GROUND_LEVEL:
+            if self.__move_y >= self.__ground_level:
                 self.__move_y = -50  # Cambia a -20 cuando llega al límite en y
             self.__move_x = ANCHO_VENTANA
 
@@ -97,7 +98,7 @@ class Tramp:
             
 
     @staticmethod
-    def generate_tramps(num_tramps, max_damage, max_speed):
+    def generate_tramps(num_tramps, max_damage, max_speed, ground_level):
         """
         Genera una lista de trampas aleatorias.
 
@@ -114,7 +115,7 @@ class Tramp:
             damage = random.randint(1, max_damage)
             speed = random.uniform(1, max_speed)
 
-            tramp = Tramp(x, 50, 50, speed, damage)  # Ajusta los parámetros según sea necesario
+            tramp = Tramp(x, 50, 50, speed, damage,ground_level)  # Ajusta los parámetros según sea necesario
             tramps.append(tramp)
 
         return tramps

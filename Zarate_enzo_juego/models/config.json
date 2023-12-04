@@ -15,19 +15,32 @@
                 "speed_run": 6
             },
         
-        "enemy":
-        {
-            "path_walk": "./Zarate_enzo_juego/recursos/enemy/walk.png",
-            "path_fall": "./Zarate_enzo_juego/recursos/enemy/fall.png",
-            "coord_y": 0,
-            "w": 40,
-            "h": 40,
-            "frame_rate": 100
-        },
 
         "stage_1":
         {
-            "background": "./Zarate_enzo_juego/recursos/fondo.jpg",
+            "background": "./Zarate_enzo_juego/recursos/backgrounds/background_1.jpg",
+            "ground_level": 650,
+            "sound": "./Zarate_enzo_juego/recursos/Sounds/stage_1.wav",
+
+            "platforms": [
+                {"coord_x": 350, "coord_y": 580, "width": 150, "height": 30, "numb": 5},
+                {"coord_x": 450, "coord_y": 400, "width": 150, "height": 30, "numb": 5},
+                {"coord_x": 250, "coord_y": 500, "width": 150, "height": 30, "numb": 5},
+                {"coord_x": 650, "coord_y": 380, "width": 150, "height": 30, "numb": 5},
+                {"coord_x": 0, "coord_y": 300, "width": 150, "height": 30, "numb": 5},
+                {"coord_x": 850, "coord_y": 300, "width": 150, "height": 30, "numb": 5}
+            ],
+
+            "enemy":
+            {
+                "path_walk": "./Zarate_enzo_juego/recursos/enemy/1/walk.png",
+                "path_fall": "./Zarate_enzo_juego/recursos/enemy/1/fall.png",
+                "columns_walk": 3,
+                "coord_y": 0,
+                "w": 40,
+                "h": 40,
+                "frame_rate": 100
+            },
 
             "max_enemies": 3,
             "max_enemy_damage": 3,
@@ -46,7 +59,29 @@
 
         "stage_2":
         {
-            "background": "./Zarate_enzo_juego/recursos/fondo.jpg",
+            "background":  "./Zarate_enzo_juego/recursos/backgrounds/background_2.png",
+            "ground_level": 575,
+            "sound":"./Zarate_enzo_juego/recursos/Sounds/stage_2.wav",
+
+            "platforms": [
+                {"coord_x": 700, "coord_y": 480, "width": 100, "height": 30, "numb": 5},
+                {"coord_x": 340, "coord_y": 400, "width": 100, "height": 30, "numb": 5},
+                {"coord_x": 270, "coord_y": 200, "width": 100, "height": 30, "numb": 5},
+                {"coord_x": 550, "coord_y": 350, "width": 100, "height": 30, "numb": 5},
+                {"coord_x": 0, "coord_y": 300, "width": 100, "height": 30, "numb": 5},
+                {"coord_x": 700, "coord_y": 300, "width": 100, "height": 30, "numb": 5}
+            ],
+
+            "enemy":
+            {
+                "path_walk": "./Zarate_enzo_juego/recursos/enemy/2/walk.png",
+                "path_fall": "./Zarate_enzo_juego/recursos/enemy/2/fall.png",
+                "columns_walk": 4,
+                "coord_y": 0,
+                "w": 40,
+                "h": 40,
+                "frame_rate": 100
+            },
 
             "max_enemies": 4,
             "max_enemy_damage": 6,
@@ -65,7 +100,26 @@
 
         "stage_3":
         {
-            "background": "./Zarate_enzo_juego/recursos/fondo.jpg",
+            "background": "./Zarate_enzo_juego/recursos/backgrounds/background_3.jpg",
+            "ground_level": 695,
+            "sound": "./Zarate_enzo_juego/recursos/Sounds/stage_3.wav",
+
+            "platforms": [
+                {"coord_x": 450, "coord_y": 480, "width": 150, "height": 30, "numb": 5},
+                {"coord_x": 340, "coord_y": 550, "width": 150, "height": 30, "numb": 5},
+                {"coord_x": 270, "coord_y": 400, "width": 150, "height": 30, "numb": 5}
+            ],
+
+            "enemy":
+            {
+                "path_walk": "./Zarate_enzo_juego/recursos/enemy/3/walk.png",
+                "path_fall": "./Zarate_enzo_juego/recursos/enemy/3/fall.png",
+                "columns_walk": 5,
+                "coord_y": 0,
+                "w": 40,
+                "h": 40,
+                "frame_rate": 100
+            },
 
             "max_enemies": 6,
             "max_enemy_damage": 10,

@@ -1,13 +1,13 @@
 from typing import Any
 import pygame as pg
 from models.auxiliar import SurfaceManager as sf
-from auxiliar.constantes import ANCHO_VENTANA, GROUND_LEVEL
+from auxiliar.constantes import ANCHO_VENTANA
 import random
 
 class Fruit(pg.sprite.Sprite):
-    def __init__(self,x, y, w, h, increase_life, increase_points, frame_rate = 60):
+    def __init__(self,x, y, w, h, increase_life, increase_points,numb, frame_rate = 60):
         super().__init__()
-        self.__actual_animation = sf.get_surface_from_spritesheet(r'Zarate_enzo_juego/recursos/Fruits/Apple.png',17, 1,(w,h))
+        self.__actual_animation = sf.get_surface_from_spritesheet(f'./Zarate_enzo_juego/recursos/Fruits/{numb}.png',17, 1,(w,h))
         self.__frame_rate = frame_rate
         self.__initial_frame = 0
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
@@ -18,6 +18,8 @@ class Fruit(pg.sprite.Sprite):
         self.increase_points = increase_points
 
         self.update_time = pg.time.get_ticks()
+
+        self.__sound = pg.mixer.Sound("./Zarate_enzo_juego/recursos/Sounds/coin.wav")
         
     @property
     def get_rect(self):
@@ -50,6 +52,7 @@ class Fruit(pg.sprite.Sprite):
         bool: True si hay colisión y se incrementa la vida, False de lo contrario.
         """
         if self.__rect.colliderect(player.get_rect):
+            self.__sound.play()
             player.increase_life_points(self.__increase_life)
             player.increase_points(self.increase_points)
             print(f"Puntos de vida incrementados: {player.get_life_points}")
@@ -92,7 +95,7 @@ class Fruit(pg.sprite.Sprite):
         screen.blit(self.__actual_img_animation, self.__rect)
     
     @staticmethod
-    def generate_fruits(num_fruits: int, min_life: int, max_life: int, min_points: int, max_points: int):
+    def generate_fruits(num_fruits: int, min_life: int, max_life: int, min_points: int, max_points: int, ground_level):
         """
         Genera una lista de frutas de forma aleatoria.
 
@@ -105,11 +108,12 @@ class Fruit(pg.sprite.Sprite):
         fruits = []
         for _ in range(num_fruits):
             x = random.randint(50, ANCHO_VENTANA - 50)
-            y = random.randint(150, GROUND_LEVEL)
+            y = random.randint(150, ground_level)
             increase_life = random.randint(min_life, max_life)  
-            increase_points = random.randint(min_points, max_points) 
+            increase_points = random.randint(min_points, max_points)
+            numb = random.randint(1, 8) 
             
-            fruit = Fruit(x, y, 50, 50, increase_life, increase_points)
+            fruit = Fruit(x, y, 50, 50, increase_life, increase_points, numb)
             fruits.append(fruit)
 
         return fruits

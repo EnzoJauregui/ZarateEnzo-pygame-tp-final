@@ -1,18 +1,18 @@
 import pygame as pg
 import random
 from models.platafroma import Plataform
-from auxiliar.constantes import GROUND_LEVEL, ANCHO_VENTANA, PUSH, DEBUG, open_config
+from auxiliar.constantes import ANCHO_VENTANA, PUSH, DEBUG
 from models.bullet import Bullet
 from models.auxiliar import SurfaceManager as sf
 
 class Enemigo(pg.sprite.Sprite):
-    def __init__(self, coord_x, coord_y,w,h,damage, speed_walk,frame_rate=300):
+    def __init__(self, coord_x, coord_y,w,h,damage, speed_walk,ground_level,config,frame_rate=150):
         super().__init__()
 
-        self.__config = open_config().get("enemy")
+        self.__config = config
 
-        self.__walk_r = sf.get_surface_from_spritesheet(self.__config["path_walk"], 3, 1,(w,h))
-        self.__walk_l = sf.get_surface_from_spritesheet(self.__config["path_walk"], 3, 1,(w,h), flip=True)
+        self.__walk_r = sf.get_surface_from_spritesheet(self.__config["path_walk"], self.__config["columns_walk"], 1,(w,h))
+        self.__walk_l = sf.get_surface_from_spritesheet(self.__config["path_walk"], self.__config["columns_walk"], 1,(w,h), flip=True)
         self.__fall_r = sf.get_surface_from_spritesheet(self.__config["path_fall"], 1, 1,(w,h))
         self.__fall_l = sf.get_surface_from_spritesheet(self.__config["path_fall"], 1, 1,(w,h), flip=True)
 
@@ -25,6 +25,7 @@ class Enemigo(pg.sprite.Sprite):
         self.__gravity = -1
         self.__plataform_colition = False
         self.__is_on_ground = False
+        self.__ground_level = ground_level-5
 
         
         self.__enemy_animation_time = 0
@@ -44,8 +45,13 @@ class Enemigo(pg.sprite.Sprite):
         self.__bullet_cooldown = 2000  # Ajusta el tiempo de espera entre disparos
         self.__dead = False
 
+        self.__impact_shoot = pg.mixer.Sound("./Zarate_enzo_juego/recursos/Sounds/collition.wav")
+        self.__shoot = pg.mixer.Sound("./Zarate_enzo_juego/recursos/Sounds/bullet.wav")
+
+        
+
     @property
-    def get_rect(self) -> int:
+    def get_rect(self) -> pg.Rect:
         """
         Devuelve el rectángulo asociado al enemigo.
 
@@ -110,6 +116,7 @@ class Enemigo(pg.sprite.Sprite):
         """
         if self.__is_on_ground or self.__plataform_colition:
             if self.__bullet_ready:
+                self.__shoot.play()
                 self.__bullet_group.add(self.create_bullet())
                 self.__bullet_ready = False
                 self.__bullet_time = pg.time.get_ticks()
@@ -141,7 +148,7 @@ class Enemigo(pg.sprite.Sprite):
         """
         for bullet in bullets:
             if self.__rect.colliderect(bullet.rect):
-                print("le di")
+                self.__impact_shoot.play()
                 self.__dead = True
                 bullet.kill()
                 break
@@ -163,14 +170,14 @@ class Enemigo(pg.sprite.Sprite):
         """
         Aplica la gravedad al enemigo si no está en el suelo o en una plataforma.
         """
-        if (self.__move_y < GROUND_LEVEL) and not self.__plataform_colition:
+        if (self.__move_y < self.__ground_level) and not self.__plataform_colition:
             self.__move_y -= self.__gravity
             self.__gravity -= 1
             self.__actual_animation = self.__fall_r if self.__is_looking_right else self.__fall_l
 
-            if self.__move_y >= GROUND_LEVEL:
+            if self.__move_y >= self.__ground_level:
                 self.__is_on_ground = True
-                self.__move_y = GROUND_LEVEL
+                self.__move_y = self.__ground_level
                 self.__gravity = 0
                 self.__is_patrolling_right = True
 
@@ -212,7 +219,7 @@ class Enemigo(pg.sprite.Sprite):
         """
         Realiza el movimiento automático del enemigo en el juego.
         """
-        if self.__rect.y >= GROUND_LEVEL or self.__plataform_colition:
+        if self.__rect.y >= self.__ground_level or self.__plataform_colition:
             if self.__is_patrolling_right:
                 look_r = False
                 self.set_x_animations(self.__speed_walk, self.__walk_l, look_r)
@@ -281,7 +288,7 @@ class Enemigo(pg.sprite.Sprite):
             pg.draw.rect(screen, "Blue", self.__rect)
 
     @staticmethod
-    def generate_enemies(num_enemies, max_damage, max_speed):
+    def generate_enemies(num_enemies, max_damage, max_speed, ground_level, config):
         """
         Genera una lista de enemigos de forma aleatoria.
 
@@ -299,7 +306,7 @@ class Enemigo(pg.sprite.Sprite):
             damage = random.randint(1, max_damage)
             speed = random.uniform(1, max_speed)
 
-            enemy = Enemigo(x, y, 40, 40,damage,speed)
+            enemy = Enemigo(x, y, 40, 40,damage,speed,ground_level,config)
             enemies.append(enemy)
 
         return enemies

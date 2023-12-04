@@ -1,13 +1,13 @@
 import pygame as pg
 from models.auxiliar import SurfaceManager as sf
-from auxiliar.constantes import ANCHO_VENTANA, DEBUG, GROUND_LEVEL, RECTIFY, LIFE_POINTS, HEIGHT_RECT, open_config
+from auxiliar.constantes import ANCHO_VENTANA, DEBUG, RECTIFY, LIFE_POINTS, HEIGHT_RECT, open_config
 from models.platafroma import Plataform
 from models.player.main_enemy import Enemigo
 from models.tramps import Tramp
 from models.bullet import Bullet
 
 class Jugador(pg.sprite.Sprite):
-    def __init__(self, coord_x, coord_y,w ,h ,frame_rate = 60, speed_walk = 3, speed_run = 6):
+    def __init__(self, coord_x, coord_y,w ,h,ground_level ,frame_rate = 60, speed_walk = 3, speed_run = 6):
 
         self.__configs = open_config()["player"]
 
@@ -33,6 +33,8 @@ class Jugador(pg.sprite.Sprite):
         self.__jump = 15
         self.__is_jumping = False
         self.__star_jump = False
+        self.__ground_level = ground_level
+        self.__plataform_colition = False
      
         self.__frame_rate = frame_rate
         self.update_time = pg.time.get_ticks()
@@ -41,9 +43,8 @@ class Jugador(pg.sprite.Sprite):
         self.__actual_img_animation = self.__actual_animation[self.__initial_frame]
         self.__rect = self.__actual_img_animation.get_rect()
 
-        self.__plataform_colition = False
         self.__life_points = LIFE_POINTS
-        self.__lives = 3
+        self.__lives = 2
         self.counter = 1000
 
         self.__is_shooting = False
@@ -54,6 +55,13 @@ class Jugador(pg.sprite.Sprite):
         self.__points = 0
 
         self.__is_dead = False
+
+        self.__jump_sound = pg.mixer.Sound("./Zarate_enzo_juego/recursos/Sounds/jump.wav")
+        self.__impact_shoot = pg.mixer.Sound("./Zarate_enzo_juego/recursos/Sounds/collition.wav")
+        self.__shoot = pg.mixer.Sound("./Zarate_enzo_juego/recursos/Sounds/bullet.wav")
+        self.__hit = pg.mixer.Sound("./Zarate_enzo_juego/recursos/Sounds/hit.wav")
+
+        
     
     @property
     def get_rect(self) -> pg.Rect:
@@ -115,9 +123,19 @@ class Jugador(pg.sprite.Sprite):
         """
         return self.__lives
     
+    def set_ground_level(self, ground_level):
+        self.__ground_level = ground_level
+
+    def set_coord_x(self, coord_x):
+        self.__move_x = coord_x
+    
+    def set_coord_y(self, coord_y):
+        self.__move_y = coord_y
+
 
     def bullet_shoot(self):
         if self.__bullet_ready:
+            self.__shoot.play()
             self.__is_shooting = True
             self.__bullet_group.add(self.create_bullet())
             self.__bullet_ready = False
@@ -151,6 +169,7 @@ class Jugador(pg.sprite.Sprite):
         """
         for bullet in bullets:
             if self.__rect.colliderect(bullet.rect):
+                self.__impact_shoot.play()
                 self.reduce_life_points(bullet.get_damage)
                 print("me dio")
                 bullet.kill()
@@ -175,21 +194,26 @@ class Jugador(pg.sprite.Sprite):
         self.__points += increase
     
     def increase_life_points(self, increase: int):
-        if self.__life_points < LIFE_POINTS:
-            self.__life_points += increase
-        else:
-            self.__life_points = LIFE_POINTS
+        if self.__lives>0:
+            if self.__life_points < LIFE_POINTS:
+                self.__life_points += increase
+                if self.__life_points > LIFE_POINTS:
+                    self.__life_points = LIFE_POINTS
+            else:
+                self.__life_points = LIFE_POINTS
+        
 
     def reduce_lives(self):
-        if self.__life_points <= 0:
-            self.__life_points = LIFE_POINTS
-            self.__lives-=1
-            print(self.__lives)
-    
-    def is_died(self):
-        if self.__lives == 0:
+        if self.__lives > 0:    
+            if self.__life_points <= 0:
+                self.__life_points = LIFE_POINTS
+                self.__lives-=1
+                print(self.__lives)
+        else:
+            self.__life_points = 0
+            self.__lives = 0
             self.__is_dead = True
-            self.__actual_animation = self.__die
+            
     
     def move_back(self, amount):
         """
@@ -259,22 +283,24 @@ class Jugador(pg.sprite.Sprite):
         Inicia el salto del jugador.
         """
         if not self.__is_jumping: 
+            self.__jump_sound.play()
             self.__gravity = self.__jump
             self.__is_jumping = True
             self.__plataform_colition = False
+
     
     def applty_gravity(self):
         """
         Aplica la gravedad al movimiento en 'y' del jugador.
         """
-        if (self.__is_jumping or self.__move_y < GROUND_LEVEL) and not self.__plataform_colition:
+        if (self.__is_jumping or self.__move_y < self.__ground_level) and not self.__plataform_colition:
             self.__move_y -= self.__gravity
             self.__gravity-= 1
             self.__actual_animation = self.__jump_r if self.__is_looking_right else self.__jump_l
             self.__is_jumping = True
 
-            if self.__move_y >= GROUND_LEVEL:  
-                self.__move_y = GROUND_LEVEL
+            if self.__move_y >= self.__ground_level:  
+                self.__move_y = self.__ground_level
                 
                 self.__star_jump = True
                 self.__is_jumping = False
@@ -290,6 +316,7 @@ class Jugador(pg.sprite.Sprite):
         for enemy in enemies:
             if self.__rect.colliderect(enemy.get_rect):
                 print("¡Colision con enemigo!")
+                self.__hit.play()
                 # Reducir puntos de vida
                 self.reduce_life_points(enemy.get_damage)
                 print("Puntos de vida restantes:", self.__life_points)
@@ -309,6 +336,7 @@ class Jugador(pg.sprite.Sprite):
         for tramp in tramps:
             if self.__rect.colliderect(tramp.get_rect):
                 print("Colision con la trampa. Aplicando danio.")
+                self.__hit.play()
                 self.reduce_life_points(tramp.get_damage)
                 self.__actual_animation = self.__die
                 self.move_back(tramp.get_push if self.__rect.x < tramp.get_rect.x else - tramp.get_push)
@@ -409,7 +437,7 @@ class Jugador(pg.sprite.Sprite):
         self.applty_gravity()
         self.collitions(plataforms, enemies, tramps)
         self.reduce_lives()
-           
+
     def do_animation(self):
         """
         Controla las acciones del jugador según las teclas presionadas.
