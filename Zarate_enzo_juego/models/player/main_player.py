@@ -124,16 +124,40 @@ class Jugador(pg.sprite.Sprite):
         return self.__lives
     
     def set_ground_level(self, ground_level):
+        """
+        Establece el nivel del suelo para el jugador.
+
+        RECIBE:
+        ground_level: Altura del nivel del suelo.
+        """
         self.__ground_level = ground_level
 
     def set_coord_x(self, coord_x):
+        """
+        Establece la coordenada X del jugador.
+
+        RECIBE:
+        coord_x: Coordenada X del jugador.
+        """
         self.__move_x = coord_x
     
     def set_coord_y(self, coord_y):
+        """
+        Establece la coordenada Y del jugador.
+
+        RECIBE:
+        coord_y: Coordenada Y del jugador.
+        """
         self.__move_y = coord_y
 
 
     def bullet_shoot(self):
+        """
+        Realiza un disparo de bala.
+        
+        - Si la bala esta lista para disparar, reproduce el sonido de disparo, crea una nueva bala y la añade al grupo de balas.
+        - Marca el jugador como disparando y actualiza el tiempo del último disparo.
+        """
         if self.__bullet_ready:
             self.__shoot.play()
             self.__is_shooting = True
@@ -194,6 +218,17 @@ class Jugador(pg.sprite.Sprite):
         self.__points += increase
     
     def increase_life_points(self, increase: int):
+        """
+        Incrementa los puntos de vida del jugador.
+
+        RECIBE:
+        increase (int): Cantidad de puntos de vida a incrementar.
+
+        ACCIÓN:
+        - Si el jugador tiene vidas restantes y los puntos de vida actuales son menores que el maximo,
+          incrementa los puntos de vida.
+        - Ajusta los puntos de vida a su máximo si se exceden.
+        """
         if self.__lives>0:
             if self.__life_points < LIFE_POINTS:
                 self.__life_points += increase
@@ -204,6 +239,14 @@ class Jugador(pg.sprite.Sprite):
         
 
     def reduce_lives(self):
+        """
+        Reduce las vidas del jugador.
+
+        ACCIÓN:
+        - Si el jugador tiene vidas restantes y los puntos de vida son igual o inferiores a cero,
+          restablece los puntos de vida al máximo y reduce una vida.
+        - Si no quedan vidas, establece los puntos de vida a cero y marca al jugador como muerto.
+        """
         if self.__lives > 0:    
             if self.__life_points <= 0:
                 self.__life_points = LIFE_POINTS

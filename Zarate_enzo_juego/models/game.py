@@ -19,11 +19,23 @@ class Game:
         self.__win = False
 
     @property
-    def get_game_active(self):
+    def get_game_active(self) -> bool:
+        """
+        Obtiene el estado del juego.
+
+        DEVUELVE:
+        bool: True si el juego está activo, False de lo contrario.
+        """
         return self.__game_active
     
     @property
-    def get_win(self):
+    def get_win(self) -> bool:
+        """
+        Obtiene el estado de victoria del jugador.
+
+        DEVUELVE:
+        bool: True si el jugador ha ganado, False de lo contrario.
+        """
         return self.__win
         
     @property
@@ -37,6 +49,13 @@ class Game:
         return self.__player
     
     def load_stage_config(self):
+        """
+        Carga la configuración del stage actual del juego desde el archivo de configuración.
+        - Carga la imagen de fondo.
+        - Establece la posición inicial del jugador.
+        - Crea instancias de plataformas, enemigos, trampas y frutas según la configuración del stage.
+        - Reproduce el sonido de la etapa.
+        """
 
         pg.mixer.stop()
 
@@ -77,6 +96,12 @@ class Game:
         self.__sound_stage.play(-1)
     
     def next_stage(self):
+        """
+        Avanza al siguiente stage del juego.
+        - Incrementa el número del stage (self.__stage).
+        - Carga la configuración del stage siempre que self.__stage no supere 3.
+        - De lo contrario, marca la victoria del jugador.
+        """
         self.__stage+=1
 
         if self.__stage <= 3:
