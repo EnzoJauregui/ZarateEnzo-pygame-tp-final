@@ -206,7 +206,8 @@ class Jugador(pg.sprite.Sprite):
         RECIBE:
         damage (int): Valor del daño a descontar de los puntos de vida.
         """
-        self.__life_points -= damage
+        if self.__life_points > 0 and self.__is_dead == False:
+            self.__life_points -= damage
     
     def increase_points(self, increase):
         """
