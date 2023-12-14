@@ -29,7 +29,7 @@ class Jugador(pg.sprite.Sprite):
         self.__speed_run = speed_run
         self.__is_looking_right = True
         
-        self.__gravity = -1
+        self.__gravity = 1
         self.__jump = 15
         self.__is_jumping = False
         self.__star_jump = False
@@ -330,8 +330,7 @@ class Jugador(pg.sprite.Sprite):
             self.__gravity = self.__jump
             self.__is_jumping = True
             self.__plataform_colition = False
-
-    
+  
     def applty_gravity(self):
         """
         Aplica la gravedad al movimiento en 'y' del jugador.

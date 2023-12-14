@@ -50,7 +50,7 @@ def exportar_a_sql(lista):
                 cursor = conexion.cursor()  # Crea un objeto cursor
                 #cursor.execute("DELETE FROM HIGH_SCORE;")
 
-                # Lista de datos de Jugadores obtenidos de self.contenido_ranking_estadisticas_sql()
+                # Lista de datos de Jugadores obtenidos
                 for jugador, puntos in lista:
                     cursor.execute("INSERT INTO HIGH_SCORE (Nombre, Puntos) VALUES (?, ?)", (jugador, puntos))
 

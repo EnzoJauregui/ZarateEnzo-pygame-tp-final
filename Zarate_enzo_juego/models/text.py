@@ -42,3 +42,7 @@ class Text:
         game_over_text = self.font_game_over.render("Game Over", True, "Red")
         self.screen.blit(game_over_text, (ANCHO_VENTANA // 2 - 150, ALTO_VENTANA // 2))
 
+    def update(self,remaining_time,points,lives):
+        self.show_time(remaining_time)
+        self.show_points(points)
+        self.show_lives(lives)

@@ -92,8 +92,8 @@ class Game:
                                               stage["max_points"],
                                               stage["ground_level"])
         
-        self.__sound_stage = pg.mixer.Sound(stage["sound"])
-        self.__sound_stage.play(-1)
+        # self.__sound_stage = pg.mixer.Sound(stage["sound"])
+        # self.__sound_stage.play(-1)
     
     def next_stage(self):
         """

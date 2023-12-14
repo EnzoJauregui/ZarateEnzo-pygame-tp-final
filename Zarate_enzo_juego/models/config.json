@@ -42,11 +42,11 @@
                 "frame_rate": 100
             },
 
-            "max_enemies": 3,
+            "max_enemies": 2,
             "max_enemy_damage": 3,
             "max_enemy_speed": 5,
 
-            "max_tramps": 3,
+            "max_tramps": 2,
             "max_tramps_speed": 4,
             "max_tramps_damage": 6,
 
@@ -82,11 +82,11 @@
                 "frame_rate": 100
             },
 
-            "max_enemies": 4,
+            "max_enemies": 3,
             "max_enemy_damage": 6,
             "max_enemy_speed": 7,
 
-            "max_tramps": 5,
+            "max_tramps": 3,
             "max_tramps_speed": 6,
             "max_tramps_damage": 10,
 
@@ -124,7 +124,7 @@
             "max_enemy_damage": 10,
             "max_enemy_speed": 9,
 
-            "max_tramps": 7,
+            "max_tramps": 4,
             "max_tramps_speed": 8,
             "max_tramps_damage": 15,
 
